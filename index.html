@@ -405,14 +405,11 @@ function setState(s){localStorage.setItem('budg_v3',JSON.stringify(s));}
 
 // ── Calc ──────────────────────────────────────────────────────────────────
 function calcBudgets(weeks){
-  let carry=0;
   return weeks.map(w=>{
-    const base=CONFIG.weeklyBase+carry;
-    const budget=base-(w.pickleball?CONFIG.pickleballCost:0);
+    const budget=CONFIG.weeklyBase-(w.pickleball?CONFIG.pickleballCost:0);
     const spent=w.entries.reduce((a,e)=>a+e.amount,0);
     const remaining=budget-spent;
-    carry=remaining;
-    return{budget:Math.max(budget,0),budgetRaw:budget,spent,remaining};
+    return{budget,spent,remaining};
   });
 }
 
