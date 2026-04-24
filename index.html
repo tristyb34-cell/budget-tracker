@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Budget</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0f0f;--card:#1a1a1a;--card2:#222;--border:#2a2a2a;
+  --green:#4ade80;--red:#f87171;--text:#f5f5f5;--muted:#777;
+  --primary:#6366f1;--primary-dim:#1e1b4b;
+}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;padding-bottom:90px}
+.view{display:none}.view.active{display:block}
+/* Header */
+.header{padding:20px 16px 14px;border-bottom:1px solid var(--border)}
+.header h1{font-size:22px;font-weight:700}
+.header .sub{font-size:13px;color:var(--muted);margin-top:3px}
+/* Section label */
+.sec{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin:20px 16px 8px}
+/* Summary row */
+.summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:16px 16px 4px}
+.sum-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 10px;text-align:center}
+.sum-card .amt{font-size:17px;font-weight:700}
+.sum-card .lbl{font-size:11px;color:var(--muted);margin-top:3px}
+/* Week cards */
+.week-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin:0 16px 10px;cursor:pointer;transition:border-color .15s}
+.week-card:active{border-color:var(--primary)}
+.wk-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.wk-name{font-weight:700;font-size:15px}
+.wk-badge{font-size:11px;padding:3px 9px;border-radius:20px;background:#222}
+.wk-badge.over{background:#3f1515;color:var(--red)}
+.wk-badge.under{background:#14301e;color:var(--green)}
+.wk-badge.empty{background:#222;color:var(--muted)}
+.progress-bar{height:6px;background:#252525;border-radius:3px;overflow:hidden;margin-bottom:10px}
+.progress-fill{height:100%;border-radius:3px;transition:width .3s}
+.wk-amts{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.wk-amts span{font-weight:600;color:var(--text)}
+.pickle-tag{font-size:11px;margin-left:6px;color:#60a5fa;background:#1e293b;padding:2px 7px;border-radius:10px;border:1px solid #334155}
+/* Card generic */
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin:0 16px 12px}
+/* Back */
+.back-btn{display:flex;align-items:center;gap:6px;color:var(--primary);background:none;border:none;font-size:15px;cursor:pointer;padding:0;margin-bottom:16px}
+/* Week header info */
+.wk-header-card{background:var(--primary-dim);border:1px solid var(--primary);border-radius:14px;padding:16px;margin:0 16px 12px}
+.wk-header-card .big{font-size:28px;font-weight:800}
+.wk-header-card .detail{font-size:13px;color:#a5b4fc;margin-top:4px}
+/* Toggle row */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)}
+.toggle-row:last-child{border-bottom:none}
+.tl-label{font-size:15px;font-weight:500}
+.tl-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.toggle{position:relative;width:46px;height:28px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#333;border-radius:14px;cursor:pointer;transition:.2s}
+.slider:before{content:'';position:absolute;width:22px;height:22px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.toggle input:checked+.slider{background:var(--primary)}
+.toggle input:checked+.slider:before{transform:translateX(18px)}
+/* Tabs */
+.tabs{display:flex;background:#111;border-radius:10px;padding:3px;margin-bottom:16px;border:1px solid var(--border)}
+.tab{flex:1;text-align:center;padding:9px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--muted);transition:all .2s;font-weight:500}
+.tab.active{background:var(--primary);color:#fff;font-weight:700}
+/* Inputs */
+.input-group{margin-bottom:14px}
+.input-group label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:500}
+.input-wrap{display:flex;align-items:center;background:#111;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.input-prefix{padding:13px 12px;color:var(--muted);font-size:15px;background:#1a1a1a;border-right:1px solid var(--border)}
+.input-wrap input{flex:1;background:none;border:none;color:var(--text);font-size:16px;padding:13px 12px;outline:none;width:100%}
+/* Buttons */
+.btn{width:100%;padding:15px;border-radius:12px;border:none;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .15s}
+.btn:active{opacity:.8}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-ghost{background:var(--card);color:var(--text);border:1px solid var(--border)}
+.btn-danger{background:#3f1515;color:var(--red);border:1px solid #7f1d1d}
+/* Info rows */
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;font-size:14px;border-bottom:1px solid var(--border)}
+.info-row:last-child{border-bottom:none}
+.info-row .ir-val{font-weight:600}
+/* Category spend list */
+.cat-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.cat-row:last-child{border-bottom:none}
+.cat-name{font-size:14px;color:var(--muted)}
+.cat-amt{font-size:14px;font-weight:600}
+/* Colors */
+.green{color:var(--green)}.red{color:var(--red)}.muted{color:var(--muted)}.primary{color:var(--primary)}
+/* Bottom nav */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);padding:10px 0 24px;display:flex;justify-content:space-around}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted);cursor:pointer;padding:0 16px}
+.nav-item.active{color:var(--primary)}
+.nav-icon{font-size:22px}
+/* Balance note */
+.balance-note{font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.5}
+/* Divider */
+.divider{height:1px;background:var(--border);margin:16px 0}
+/* Settings items */
+.setting-item{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.setting-item:last-child{border-bottom:none}
+.si-label{font-size:15px}
+.si-val{font-size:14px;color:var(--muted)}
+/* New month screen */
+.new-month-card{background:linear-gradient(135deg,#1e1b4b,#0f172a);border:1px solid var(--primary);border-radius:16px;padding:24px;margin:32px 16px;text-align:center}
+.new-month-card h2{font-size:22px;font-weight:800;margin-bottom:8px}
+.new-month-card p{font-size:14px;color:#a5b4fc;margin-bottom:20px;line-height:1.5}
+/* Spacer */
+.sp{height:16px}
+</style>
+</head>
+<body>
+
+<!-- DASHBOARD VIEW -->
+<div id="view-dashboard" class="view active">
+  <div class="header">
+    <h1 id="dash-month">April 2026</h1>
+    <div class="sub" id="dash-sub">R3,400 discretionary this month</div>
+  </div>
+
+  <div id="new-month-prompt" style="display:none">
+    <div class="new-month-card">
+      <h2>New Month</h2>
+      <p>Start fresh for a new month. Your previous data will be cleared.</p>
+      <button class="btn btn-primary" onclick="startNewMonth()">Start New Month</button>
+    </div>
+  </div>
+
+  <div id="dash-content">
+    <div class="summary">
+      <div class="sum-card">
+        <div class="amt" id="sum-budget">R3,400</div>
+        <div class="lbl">Budget</div>
+      </div>
+      <div class="sum-card">
+        <div class="amt red" id="sum-spent">R0</div>
+        <div class="lbl">Spent</div>
+      </div>
+      <div class="sum-card">
+        <div class="amt green" id="sum-left">R3,400</div>
+        <div class="lbl">Left</div>
+      </div>
+    </div>
+
+    <div class="sec">Weekly Breakdown</div>
+    <div id="week-cards"></div>
+  </div>
+</div>
+
+<!-- WEEK DETAIL VIEW -->
+<div id="view-week" class="view">
+  <div style="padding:16px 16px 0">
+    <button class="back-btn" onclick="showView('dashboard')">&#8592; Back</button>
+  </div>
+
+  <div id="week-header-card" class="wk-header-card"></div>
+
+  <div style="padding:0 16px">
+    <div class="card" style="margin:0 0 12px">
+      <div class="toggle-row" style="padding-top:0">
+        <div>
+          <div class="tl-label">🏓 Did you play pickleball?</div>
+          <div class="tl-sub">Deducts R200 from this week</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="pickleball-toggle" onchange="onPickleballChange()">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" id="tab-cat" onclick="switchTab('cat')">By Category</div>
+      <div class="tab" id="tab-bal" onclick="switchTab('bal')">By Balance</div>
+    </div>
+
+    <!-- Category tab -->
+    <div id="tab-content-cat">
+      <div class="input-group">
+        <label>Personal Care</label>
+        <div class="input-wrap"><span class="input-prefix">R</span><input type="number" id="cat-personalCare" placeholder="0" min="0" oninput="onCategoryInput()"></div>
+      </div>
+      <div class="input-group">
+        <label>Snacks</label>
+        <div class="input-wrap"><span class="input-prefix">R</span><input type="number" id="cat-snacks" placeholder="0" min="0" oninput="onCategoryInput()"></div>
+      </div>
+      <div class="input-group">
+        <label>Online / Shop Purchases</label>
+        <div class="input-wrap"><span class="input-prefix">R</span><input type="number" id="cat-onlineShopping" placeholder="0" min="0" oninput="onCategoryInput()"></div>
+      </div>
+      <div class="input-group">
+        <label>Other</label>
+        <div class="input-wrap"><span class="input-prefix">R</span><input type="number" id="cat-other" placeholder="0" min="0" oninput="onCategoryInput()"></div>
+      </div>
+      <div class="card" style="margin:0 0 12px">
+        <div class="info-row"><span class="muted">Total entered</span><span class="ir-val" id="cat-total-display">R0</span></div>
+      </div>
+    </div>
+
+    <!-- Balance tab -->
+    <div id="tab-content-bal" style="display:none">
+      <p class="balance-note">Enter your current bank balance. We'll calculate how much you've spent this week based on what your balance should be.</p>
+      <div class="input-group">
+        <label>Current Bank Balance</label>
+        <div class="input-wrap"><span class="input-prefix">R</span><input type="number" id="bal-current" placeholder="e.g. 8500" min="0" oninput="onBalanceInput()"></div>
+      </div>
+      <div class="card" style="margin:0 0 12px">
+        <div class="info-row"><span class="muted">Calculated spend this week</span><span class="ir-val" id="bal-spend-display">—</span></div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="save-week-btn" onclick="saveWeek()" style="margin-bottom:12px">Save Week</button>
+    <button class="btn btn-ghost" onclick="clearWeek()" style="margin-bottom:12px">Clear This Week</button>
+  </div>
+</div>
+
+<!-- SETTINGS VIEW -->
+<div id="view-settings" class="view">
+  <div class="header">
+    <h1>Settings</h1>
+    <div class="sub">Adjust your budget config</div>
+  </div>
+
+  <div class="sec">Monthly Budget</div>
+  <div class="card">
+    <div class="info-row"><span>Monthly take-home</span><span class="ir-val">R14,500</span></div>
+    <div class="info-row"><span>Fixed expenses</span><span class="ir-val red">R10,600</span></div>
+    <div class="info-row"><span>Cigarettes (fixed)</span><span class="ir-val red">R500</span></div>
+    <div class="info-row"><span>Discretionary pool</span><span class="ir-val green">R3,400</span></div>
+    <div class="info-row"><span>Weekly base budget</span><span class="ir-val primary">R850</span></div>
+  </div>
+
+  <div class="sec">Fixed Expenses Breakdown</div>
+  <div class="card">
+    <div class="info-row"><span>Rent</span><span class="ir-val">R4,500</span></div>
+    <div class="info-row"><span>Petrol</span><span class="ir-val">R1,000</span></div>
+    <div class="info-row"><span>Insurance</span><span class="ir-val">R1,500</span></div>
+    <div class="info-row"><span>Dad</span><span class="ir-val">R1,000</span></div>
+    <div class="info-row"><span>Subscriptions</span><span class="ir-val">R1,500</span></div>
+    <div class="info-row"><span>Work lunches</span><span class="ir-val">R1,100</span></div>
+  </div>
+
+  <div class="sec">Actions</div>
+  <div class="card">
+    <div class="setting-item" onclick="if(confirm('Reset all data for a new month?')) startNewMonth()">
+      <span class="si-label">Start New Month</span>
+      <span class="si-val">&#8250;</span>
+    </div>
+    <div class="setting-item" onclick="exportData()">
+      <span class="si-label">Export Data</span>
+      <span class="si-val">&#8250;</span>
+    </div>
+  </div>
+  <div class="sp"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="nav-item active" id="nav-dashboard" onclick="showView('dashboard')">
+    <div class="nav-icon">📊</div>
+    <div>Budget</div>
+  </div>
+  <div class="nav-item" id="nav-settings" onclick="showView('settings')">
+    <div class="nav-icon">⚙️</div>
+    <div>Settings</div>
+  </div>
+</div>
+
+<script>
+const CONFIG = {
+  monthlyDiscretionary: 3400,
+  weeklyBase: 850,
+  pickleballCost: 200,
+  cigarettes: 500,
+};
+
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+let currentWeekId = 1;
+let currentTab = 'cat';
+
+// ── State ─────────────────────────────────────────────────────────────────
+
+function defaultState() {
+  const now = new Date();
+  return {
+    monthYear: `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`,
+    startingBalance: null,
+    weeks: [1,2,3,4].map(w => ({
+      id: w, pickleball: false,
+      categorySpend: {personalCare:0, snacks:0, onlineShopping:0, other:0},
+      balanceEntry: null,
+      totalSpend: 0,
+      inputMode: 'cat',
+      hasData: false,
+    }))
+  };
+}
+
+function getState() {
+  try {
+    const s = localStorage.getItem('budget_v2');
+    return s ? JSON.parse(s) : defaultState();
+  } catch { return defaultState(); }
+}
+
+function setState(s) {
+  localStorage.setItem('budget_v2', JSON.stringify(s));
+}
+
+// ── Budget Calculations ───────────────────────────────────────────────────
+
+function calcWeekBudgets(weeks) {
+  const results = [];
+  let carryover = 0;
+  for (const week of weeks) {
+    const base = CONFIG.weeklyBase + carryover;
+    const budget = base - (week.pickleball ? CONFIG.pickleballCost : 0);
+    const spent = week.totalSpend || 0;
+    const remaining = budget - spent;
+    carryover = remaining; // positive = carry forward, negative = overspent
+    results.push({ budget: Math.max(budget, 0), budgetRaw: budget, spent, remaining });
+  }
+  return results;
+}
+
+// ── Rendering ─────────────────────────────────────────────────────────────
+
+function fmt(n) {
+  return 'R' + Math.abs(Math.round(n)).toLocaleString();
+}
+
+function renderDashboard() {
+  const s = getState();
+  const budgets = calcWeekBudgets(s.weeks);
+
+  // Month title
+  const [year, month] = s.monthYear.split('-');
+  document.getElementById('dash-month').textContent = `${MONTHS[parseInt(month)-1]} ${year}`;
+
+  // Summary
+  const totalSpent = s.weeks.reduce((a,w) => a + (w.totalSpend||0), 0);
+  const totalLeft = CONFIG.monthlyDiscretionary - totalSpent;
+  document.getElementById('sum-budget').textContent = fmt(CONFIG.monthlyDiscretionary);
+  document.getElementById('sum-spent').textContent = fmt(totalSpent);
+  document.getElementById('sum-left').textContent = fmt(totalLeft);
+  document.getElementById('sum-left').className = `amt ${totalLeft < 0 ? 'red' : 'green'}`;
+
+  // Week cards
+  const container = document.getElementById('week-cards');
+  container.innerHTML = '';
+  s.weeks.forEach((week, i) => {
+    const { budget, spent, remaining } = budgets[i];
+    const pct = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0;
+    const over = remaining < 0;
+    const hasData = week.hasData;
+
+    const badge = hasData
+      ? (over ? `<span class="wk-badge over">-${fmt(Math.abs(remaining))}</span>`
+               : `<span class="wk-badge under">+${fmt(remaining)}</span>`)
+      : `<span class="wk-badge empty">Not logged</span>`;
+
+    const pickleTag = week.pickleball ? `<span class="pickle-tag">🏓 -R200</span>` : '';
+    const color = over ? '#f87171' : '#4ade80';
+
+    container.innerHTML += `
+      <div class="week-card" onclick="openWeek(${week.id})">
+        <div class="wk-top">
+          <div class="wk-name">Week ${week.id} ${pickleTag}</div>
+          ${badge}
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>
+        <div class="wk-amts">
+          <div>Budget <span>${fmt(budget)}</span></div>
+          <div>Spent <span>${fmt(spent)}</span></div>
+          <div>Left <span style="color:${over?'var(--red)':'var(--green)'}">${over?'-':''}${fmt(Math.abs(remaining))}</span></div>
+        </div>
+      </div>`;
+  });
+}
+
+function openWeek(id) {
+  currentWeekId = id;
+  const s = getState();
+  const week = s.weeks[id-1];
+  const budgets = calcWeekBudgets(s.weeks);
+  const { budget, spent, remaining } = budgets[id-1];
+  const over = remaining < 0;
+
+  // Header
+  document.getElementById('week-header-card').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div style="font-size:13px;color:#a5b4fc;margin-bottom:4px">Week ${id}</div>
+        <div class="big">${fmt(budget)}</div>
+        <div class="detail">Budget this week${week.pickleball ? ' (incl. pickleball)' : ''}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:13px;color:${over?'var(--red)':'var(--green)'};">${over ? 'Overspent' : 'Remaining'}</div>
+        <div style="font-size:22px;font-weight:800;color:${over?'var(--red)':'var(--green)'}">${over?'-':''}${fmt(Math.abs(remaining))}</div>
+        <div style="font-size:12px;color:#a5b4fc">Spent: ${fmt(spent)}</div>
+      </div>
+    </div>`;
+
+  // Pickleball toggle
+  document.getElementById('pickleball-toggle').checked = week.pickleball;
+
+  // Category inputs
+  ['personalCare','snacks','onlineShopping','other'].forEach(cat => {
+    const el = document.getElementById(`cat-${cat}`);
+    if (el) el.value = week.categorySpend[cat] || '';
+  });
+  updateCatTotal();
+
+  // Balance input
+  document.getElementById('bal-current').value = week.balanceEntry || '';
+  updateBalDisplay();
+
+  // Tab
+  switchTab(week.inputMode || 'cat');
+  showView('week');
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tab-cat').classList.toggle('active', tab==='cat');
+  document.getElementById('tab-bal').classList.toggle('active', tab==='bal');
+  document.getElementById('tab-content-cat').style.display = tab==='cat' ? 'block' : 'none';
+  document.getElementById('tab-content-bal').style.display = tab==='bal' ? 'block' : 'none';
+}
+
+function updateCatTotal() {
+  const cats = ['personalCare','snacks','onlineShopping','other'];
+  const total = cats.reduce((a,c) => a + (parseFloat(document.getElementById(`cat-${c}`)?.value)||0), 0);
+  document.getElementById('cat-total-display').textContent = fmt(total);
+}
+
+function updateBalDisplay() {
+  const s = getState();
+  const budgets = calcWeekBudgets(s.weeks);
+  const bal = parseFloat(document.getElementById('bal-current').value);
+  if (isNaN(bal)) { document.getElementById('bal-spend-display').textContent = '—'; return; }
+
+  // Expected balance = starting balance minus all previous weeks' spend and this week's fixed
+  // Simpler: show calculated spend based on previous week's ending balance
+  // We track a "reference balance" set at month start or from previous week
+  const prevSpent = s.weeks.slice(0, currentWeekId-1).reduce((a,w) => a + (w.totalSpend||0), 0);
+  const expectedStart = s.startingBalance !== null ? s.startingBalance - prevSpent : null;
+
+  if (expectedStart === null) {
+    // No starting balance set — just show raw spend from difference if we have prev week balance
+    document.getElementById('bal-spend-display').textContent = 'Set starting balance in settings first';
+    return;
+  }
+  const spent = expectedStart - bal;
+  document.getElementById('bal-spend-display').textContent = spent >= 0 ? fmt(spent) : 'Check balance entry';
+}
+
+function onPickleballChange() {
+  const s = getState();
+  s.weeks[currentWeekId-1].pickleball = document.getElementById('pickleball-toggle').checked;
+  setState(s);
+  openWeek(currentWeekId); // re-render header
+}
+
+function onCategoryInput() { updateCatTotal(); }
+function onBalanceInput() { updateBalDisplay(); }
+
+function saveWeek() {
+  const s = getState();
+  const week = s.weeks[currentWeekId-1];
+
+  if (currentTab === 'cat') {
+    const cats = ['personalCare','snacks','onlineShopping','other'];
+    cats.forEach(c => {
+      week.categorySpend[c] = parseFloat(document.getElementById(`cat-${c}`)?.value)||0;
+    });
+    week.totalSpend = cats.reduce((a,c) => a + week.categorySpend[c], 0);
+    week.inputMode = 'cat';
+  } else {
+    const bal = parseFloat(document.getElementById('bal-current').value);
+    if (isNaN(bal)) { alert('Enter a valid balance.'); return; }
+    week.balanceEntry = bal;
+    week.inputMode = 'bal';
+    // Calculate spend
+    if (s.startingBalance !== null) {
+      const prevSpent = s.weeks.slice(0, currentWeekId-1).reduce((a,w) => a + (w.totalSpend||0), 0);
+      const expectedStart = s.startingBalance - prevSpent;
+      week.totalSpend = Math.max(0, expectedStart - bal);
+    }
+  }
+
+  week.hasData = true;
+  setState(s);
+  showView('dashboard');
+  renderDashboard();
+}
+
+function clearWeek() {
+  if (!confirm('Clear all data for this week?')) return;
+  const s = getState();
+  const w = s.weeks[currentWeekId-1];
+  w.pickleball = false;
+  w.categorySpend = {personalCare:0,snacks:0,onlineShopping:0,other:0};
+  w.balanceEntry = null;
+  w.totalSpend = 0;
+  w.hasData = false;
+  setState(s);
+  showView('dashboard');
+  renderDashboard();
+}
+
+function startNewMonth() {
+  setState(defaultState());
+  showView('dashboard');
+  renderDashboard();
+}
+
+function exportData() {
+  const s = getState();
+  const text = JSON.stringify(s, null, 2);
+  const blob = new Blob([text], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `budget-${s.monthYear}.json`;
+  a.click();
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────
+
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(`view-${name}`).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navEl = document.getElementById(`nav-${name}`);
+  if (navEl) navEl.classList.add('active');
+  if (name === 'dashboard') renderDashboard();
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+renderDashboard();
+</script>
+</body>
+</html>
