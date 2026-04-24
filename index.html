@@ -147,6 +147,21 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 .dot-shopping{background:linear-gradient(135deg,#60a5fa,#3b82f6)}
 .dot-other{background:linear-gradient(135deg,#a78bfa,#7c3aed)}
 
+/* Category reset button */
+.cat-reset{font-size:16px;color:var(--muted2);padding:2px 4px;border-radius:6px;line-height:1;transition:color .15s}
+.cat-reset:active{color:var(--red)}
+
+/* History */
+.hist-card{background:var(--card);border:1px solid var(--border);border-radius:16px;margin:0 16px 12px;overflow:hidden;cursor:pointer}
+.hist-header{padding:16px;display:flex;justify-content:space-between;align-items:center}
+.hist-month{font-size:16px;font-weight:700}
+.hist-total{font-size:15px;font-weight:700;color:var(--red)}
+.hist-body{padding:0 16px 16px;border-top:1px solid var(--border)}
+.hist-cat-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid #ffffff08}
+.hist-cat-row:last-child{border-bottom:none}
+.hist-empty{text-align:center;padding:48px 20px;color:var(--muted2)}
+.hist-empty .emoji{font-size:36px;margin-bottom:12px}
+
 /* Note input in sheet */
 .note-wrap{margin:0 12px 12px;background:var(--card2);border:1px solid var(--border);border-radius:14px;display:flex;align-items:center;gap:10px;padding:12px 14px}
 .note-wrap input{background:none;border:none;color:var(--text);font-size:15px;flex:1;outline:none}
@@ -238,25 +253,37 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
   <div class="sec-title">Add Spend</div>
   <div class="cat-grid">
     <div class="cat-btn personal-care" onclick="openSheet('personalCare')">
-      <span class="cat-icon">💆</span>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <span class="cat-icon">💆</span>
+        <span class="cat-reset" onclick="event.stopPropagation();resetCat('personalCare')" id="cat-reset-personalCare" style="display:none">↺</span>
+      </div>
       <span class="cat-name">Personal Care</span>
       <span class="cat-spent">Spent: <span id="cat-disp-personalCare">R0</span></span>
       <div class="cat-bar"><div class="cat-bar-fill" id="cat-bar-personalCare" style="background:linear-gradient(90deg,#f472b6,#ec4899);width:0%"></div></div>
     </div>
     <div class="cat-btn snacks" onclick="openSheet('snacks')">
-      <span class="cat-icon">🍫</span>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <span class="cat-icon">🍫</span>
+        <span class="cat-reset" onclick="event.stopPropagation();resetCat('snacks')" id="cat-reset-snacks" style="display:none">↺</span>
+      </div>
       <span class="cat-name">Snacks</span>
       <span class="cat-spent">Spent: <span id="cat-disp-snacks">R0</span></span>
       <div class="cat-bar"><div class="cat-bar-fill" id="cat-bar-snacks" style="background:linear-gradient(90deg,#f5c842,#f97316);width:0%"></div></div>
     </div>
     <div class="cat-btn shopping" onclick="openSheet('onlineShopping')">
-      <span class="cat-icon">🛒</span>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <span class="cat-icon">🛒</span>
+        <span class="cat-reset" onclick="event.stopPropagation();resetCat('onlineShopping')" id="cat-reset-onlineShopping" style="display:none">↺</span>
+      </div>
       <span class="cat-name">Online / Shopping</span>
       <span class="cat-spent">Spent: <span id="cat-disp-onlineShopping">R0</span></span>
       <div class="cat-bar"><div class="cat-bar-fill" id="cat-bar-onlineShopping" style="background:linear-gradient(90deg,#60a5fa,#3b82f6);width:0%"></div></div>
     </div>
     <div class="cat-btn other" onclick="openSheet('other')">
-      <span class="cat-icon">✨</span>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <span class="cat-icon">✨</span>
+        <span class="cat-reset" onclick="event.stopPropagation();resetCat('other')" id="cat-reset-other" style="display:none">↺</span>
+      </div>
       <span class="cat-name">Other</span>
       <span class="cat-spent">Spent: <span id="cat-disp-other">R0</span></span>
       <div class="cat-bar"><div class="cat-bar-fill" id="cat-bar-other" style="background:linear-gradient(90deg,#a78bfa,#7c3aed);width:0%"></div></div>
@@ -271,6 +298,16 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
   <div class="sec-title">This Week's Log</div>
   <div class="setting-card" id="log-list" style="margin-bottom:12px"></div>
   <div class="sp"></div>
+</div>
+
+<!-- ══ HISTORY PAGE ══ -->
+<div id="page-history" class="page">
+  <div style="padding:20px 16px 14px;border-bottom:1px solid var(--border)">
+    <div style="font-size:22px;font-weight:700">History</div>
+    <div style="font-size:13px;color:var(--muted2);margin-top:3px">Your spending across past months</div>
+  </div>
+  <div class="sp"></div>
+  <div id="history-content"></div>
 </div>
 
 <!-- ══ AUDIT PAGE ══ -->
@@ -339,6 +376,10 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
   <div class="nav-item active" id="nav-main" onclick="showPage('main')">
     <div class="nav-icon">💰</div>
     <div>Budget</div>
+  </div>
+  <div class="nav-item" id="nav-history" onclick="showPage('history')">
+    <div class="nav-icon">🗂️</div>
+    <div>History</div>
   </div>
   <div class="nav-item" id="nav-audit" onclick="showPage('audit')">
     <div class="nav-icon">📊</div>
@@ -473,6 +514,7 @@ function render(){
     const catPct=budget>0?Math.min((catSpent/budget)*100,100):0;
     document.getElementById(`cat-disp-${cat}`).textContent=fmt(catSpent);
     document.getElementById(`cat-bar-${cat}`).style.width=catPct+'%';
+    document.getElementById(`cat-reset-${cat}`).style.display=catSpent>0?'inline':'none';
   });
 
   // Week strip
@@ -528,6 +570,14 @@ function deleteEntry(idx){
   if(!confirm('Remove this entry?'))return;
   const s=getState();
   s.weeks[currentWeekId-1].entries.splice(idx,1);
+  setState(s);
+  render();
+}
+
+function resetCat(cat){
+  if(!confirm(`Clear all ${CAT_NAMES[cat]} entries this week?`))return;
+  const s=getState();
+  s.weeks[currentWeekId-1].entries=s.weeks[currentWeekId-1].entries.filter(e=>e.cat!==cat);
   setState(s);
   render();
 }
@@ -677,15 +727,82 @@ function copyForClaude(){
 }
 
 // ── Navigation ────────────────────────────────────────────────────────────
+function renderHistory(){
+  const h=getHistory();
+  const el=document.getElementById('history-content');
+  if(!h.length){
+    el.innerHTML=`<div class="hist-empty"><div class="emoji">📭</div><div>No history yet.</div><div style="font-size:12px;margin-top:6px">Complete a month and hit "Start New Month" to archive it here.</div></div>`;
+    return;
+  }
+  const cats=['personalCare','snacks','onlineShopping','other'];
+  el.innerHTML=h.map((m,mi)=>{
+    const [year,month]=m.monthYear.split('-');
+    const catRows=cats.map(c=>`
+      <div class="hist-cat-row">
+        <span style="color:var(--muted2)">${CAT_NAMES[c]}</span>
+        <span style="font-weight:600">${fmt(m.catBreakdown[c]||0)}</span>
+      </div>`).join('');
+    const wkRows=m.weekBreakdown.map(w=>`
+      <div class="hist-cat-row">
+        <span style="color:var(--muted2)">Week ${w.week}${w.pickleball?' 🏓':''}</span>
+        <span style="font-weight:600">${fmt(w.spent)}</span>
+      </div>`).join('');
+    return`<div class="hist-card">
+      <div class="hist-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+        <div>
+          <div class="hist-month">${MONTHS[parseInt(month)-1]} ${year}</div>
+          <div style="font-size:12px;color:var(--muted2);margin-top:2px">R${CONFIG.monthlyDiscretionary.toLocaleString()} budget</div>
+        </div>
+        <div style="text-align:right">
+          <div class="hist-total">-${fmt(m.totalSpent)}</div>
+          <div style="font-size:12px;color:${CONFIG.monthlyDiscretionary-m.totalSpent<0?'var(--red)':'var(--green)'}">${fmt(CONFIG.monthlyDiscretionary-m.totalSpent)} left</div>
+        </div>
+      </div>
+      <div class="hist-body" style="display:none">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:12px 0 6px">By Category</div>
+        ${catRows}
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:12px 0 6px">By Week</div>
+        ${wkRows}
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function showPage(name){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(`page-${name}`).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById(`nav-${name}`).classList.add('active');
   if(name==='audit') renderAudit();
+  if(name==='history') renderHistory();
 }
 
-function startNewMonth(){setState(defaultState());currentWeekId=1;render();}
+function getHistory(){try{return JSON.parse(localStorage.getItem('budg_history')||'[]');}catch{return[];}}
+function setHistory(h){localStorage.setItem('budg_history',JSON.stringify(h));}
+
+function startNewMonth(){
+  // Archive current month before resetting
+  const s=getState();
+  const allEntries=s.weeks.flatMap((w,i)=>w.entries.map(e=>({...e,week:i+1})));
+  const totalSpent=allEntries.reduce((a,e)=>a+e.amount,0);
+  if(totalSpent>0){
+    const cats=['personalCare','snacks','onlineShopping','other'];
+    const catBreakdown={};
+    cats.forEach(c=>{catBreakdown[c]=allEntries.filter(e=>e.cat===c).reduce((a,e)=>a+e.amount,0);});
+    const weekBreakdown=s.weeks.map((w,i)=>({
+      week:i+1,pickleball:w.pickleball,
+      spent:w.entries.reduce((a,e)=>a+e.amount,0)
+    }));
+    const h=getHistory();
+    // Don't duplicate same month
+    const filtered=h.filter(m=>m.monthYear!==s.monthYear);
+    filtered.unshift({monthYear:s.monthYear,totalSpent,catBreakdown,weekBreakdown,entries:allEntries});
+    setHistory(filtered.slice(0,24)); // keep 2 years
+  }
+  setState(defaultState());
+  currentWeekId=1;
+  render();
+}
 function exportData(){
   const s=getState();
   const a=document.createElement('a');
