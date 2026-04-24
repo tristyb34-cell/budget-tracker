@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Budget</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -147,6 +149,29 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 .dot-shopping{background:linear-gradient(135deg,#60a5fa,#3b82f6)}
 .dot-other{background:linear-gradient(135deg,#a78bfa,#7c3aed)}
 
+/* Drag-to-add slider */
+.slider-row{margin-top:12px}
+.slider-label-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;min-height:22px}
+.slider-amount{font-size:13px;font-weight:800;color:var(--primary2);transition:color .1s}
+.slider-amount.zero{color:var(--muted)}
+.slider-add-btn{font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;border:none;background:var(--primary);color:#fff;cursor:pointer;opacity:0;transition:opacity .2s;pointer-events:none}
+.slider-add-btn.visible{opacity:1;pointer-events:all}
+.cat-slider{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;outline:none;cursor:pointer;background:#ffffff10}
+.cat-slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.4);cursor:grab;border:2px solid var(--primary)}
+.cat-slider::-webkit-slider-thumb:active{cursor:grabbing;transform:scale(1.2)}
+
+/* Daily rate banner */
+.daily-rate{margin:0 16px 12px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:14px;display:flex;justify-content:space-between;align-items:center}
+.dr-label{font-size:12px;color:var(--muted2)}
+.dr-val{font-size:14px;font-weight:700}
+.on-track-badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px}
+.on-track-badge.good{background:#14301e;color:var(--green)}
+.on-track-badge.warn{background:#2a2010;color:var(--yellow)}
+.on-track-badge.over{background:#3f1515;color:var(--red)}
+
+/* Period label */
+.period-label{font-size:11px;color:var(--muted2);padding:6px 16px;margin-bottom:2px}
+
 /* Category reset button */
 .cat-reset{font-size:16px;color:var(--muted2);padding:2px 4px;border-radius:6px;line-height:1;transition:color .15s}
 .cat-reset:active{color:var(--red)}
@@ -234,6 +259,15 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
     </div>
   </div>
 
+  <!-- Daily rate -->
+  <div class="daily-rate">
+    <div>
+      <div class="dr-label">Daily budget remaining</div>
+      <div class="dr-val" id="daily-rate">—</div>
+    </div>
+    <div class="on-track-badge good" id="on-track-badge">On track</div>
+  </div>
+
   <!-- Pickleball -->
   <div class="pickle-banner" id="pickle-banner" onclick="togglePickleball()">
     <div class="pickle-left">
@@ -259,8 +293,17 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
       </div>
       <span class="cat-name">Personal Care</span>
       <span class="cat-spent">Spent: <span id="cat-disp-personalCare">R0</span></span>
-      <div class="cat-bar"><div class="cat-bar-fill" id="cat-bar-personalCare" style="background:linear-gradient(90deg,#f472b6,#ec4899);width:0%"></div></div>
+      <div class="slider-row" onclick="event.stopPropagation()">
+        <div class="slider-label-row">
+          <span class="slider-amount zero" id="sla-personalCare">Drag to add</span>
+          <button class="slider-add-btn" id="slab-personalCare" onclick="addFromSlider('personalCare')">Add</button>
+        </div>
+        <input type="range" class="cat-slider" id="sli-personalCare" min="0" max="850" step="5" value="0"
+          style="background:linear-gradient(to right,#f472b6 0%,#ffffff10 0%)"
+          oninput="onSlider('personalCare',this)">
+      </div>
     </div>
+
     <div class="cat-btn snacks" onclick="openSheet('snacks')">
       <div style="display:flex;justify-content:space-between;align-items:flex-start">
         <span class="cat-icon">🍫</span>
@@ -268,8 +311,17 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
       </div>
       <span class="cat-name">Snacks</span>
       <span class="cat-spent">Spent: <span id="cat-disp-snacks">R0</span></span>
-      <div class="cat-bar"><div class="cat-bar-fill" id="cat-bar-snacks" style="background:linear-gradient(90deg,#f5c842,#f97316);width:0%"></div></div>
+      <div class="slider-row" onclick="event.stopPropagation()">
+        <div class="slider-label-row">
+          <span class="slider-amount zero" id="sla-snacks">Drag to add</span>
+          <button class="slider-add-btn" id="slab-snacks" onclick="addFromSlider('snacks')">Add</button>
+        </div>
+        <input type="range" class="cat-slider" id="sli-snacks" min="0" max="850" step="5" value="0"
+          style="background:linear-gradient(to right,#f5c842 0%,#ffffff10 0%)"
+          oninput="onSlider('snacks',this)">
+      </div>
     </div>
+
     <div class="cat-btn shopping" onclick="openSheet('onlineShopping')">
       <div style="display:flex;justify-content:space-between;align-items:flex-start">
         <span class="cat-icon">🛒</span>
@@ -277,8 +329,17 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
       </div>
       <span class="cat-name">Online / Shopping</span>
       <span class="cat-spent">Spent: <span id="cat-disp-onlineShopping">R0</span></span>
-      <div class="cat-bar"><div class="cat-bar-fill" id="cat-bar-onlineShopping" style="background:linear-gradient(90deg,#60a5fa,#3b82f6);width:0%"></div></div>
+      <div class="slider-row" onclick="event.stopPropagation()">
+        <div class="slider-label-row">
+          <span class="slider-amount zero" id="sla-onlineShopping">Drag to add</span>
+          <button class="slider-add-btn" id="slab-onlineShopping" onclick="addFromSlider('onlineShopping')">Add</button>
+        </div>
+        <input type="range" class="cat-slider" id="sli-onlineShopping" min="0" max="850" step="5" value="0"
+          style="background:linear-gradient(to right,#60a5fa 0%,#ffffff10 0%)"
+          oninput="onSlider('onlineShopping',this)">
+      </div>
     </div>
+
     <div class="cat-btn other" onclick="openSheet('other')">
       <div style="display:flex;justify-content:space-between;align-items:flex-start">
         <span class="cat-icon">✨</span>
@@ -286,7 +347,15 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
       </div>
       <span class="cat-name">Other</span>
       <span class="cat-spent">Spent: <span id="cat-disp-other">R0</span></span>
-      <div class="cat-bar"><div class="cat-bar-fill" id="cat-bar-other" style="background:linear-gradient(90deg,#a78bfa,#7c3aed);width:0%"></div></div>
+      <div class="slider-row" onclick="event.stopPropagation()">
+        <div class="slider-label-row">
+          <span class="slider-amount zero" id="sla-other">Drag to add</span>
+          <button class="slider-add-btn" id="slab-other" onclick="addFromSlider('other')">Add</button>
+        </div>
+        <input type="range" class="cat-slider" id="sli-other" min="0" max="850" step="5" value="0"
+          style="background:linear-gradient(to right,#a78bfa 0%,#ffffff10 0%)"
+          oninput="onSlider('other',this)">
+      </div>
     </div>
   </div>
 
@@ -423,25 +492,89 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 
 <div class="copied-toast" id="toast">Copied to clipboard ✓</div>
 <script>
-const CONFIG={monthlyDiscretionary:3400,weeklyBase:850,pickleballCost:200};
+const CONFIG={monthlyDiscretionary:3400,weeklyBase:850,pickleballCost:200,payDay:25};
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const CAT_NAMES={personalCare:'Personal Care',snacks:'Snacks',onlineShopping:'Online / Shopping',other:'Other'};
 const CAT_DOTS={personalCare:'dot-personal',snacks:'dot-snacks',onlineShopping:'dot-shopping',other:'dot-other'};
-const CAT_COLORS={personalCare:'linear-gradient(90deg,#f472b6,#ec4899)',snacks:'linear-gradient(90deg,#f5c842,#f97316)',onlineShopping:'linear-gradient(90deg,#60a5fa,#3b82f6)',other:'linear-gradient(90deg,#a78bfa,#7c3aed)'};
+const WEEK_RANGES=[
+  {label:'Wk 1',days:'25th – 31st'},
+  {label:'Wk 2',days:'1st – 7th'},
+  {label:'Wk 3',days:'8th – 14th'},
+  {label:'Wk 4',days:'15th – 24th'},
+];
 
-let currentWeekId=1;
+// ── Period helpers (pay period = 25th to 24th) ────────────────────────────
+function getCurrentPeriod(){
+  const now=new Date();
+  const day=now.getDate();
+  const m=now.getMonth(); // 0-indexed
+  const y=now.getFullYear();
+  if(day>=CONFIG.payDay){
+    return `${y}-${String(m+1).padStart(2,'0')}`;
+  } else {
+    const pm=m===0?11:m-1;
+    const py=m===0?y-1:y;
+    return `${py}-${String(pm+1).padStart(2,'0')}`;
+  }
+}
+
+function getCurrentWeekId(){
+  const day=new Date().getDate();
+  if(day>=CONFIG.payDay) return 1;
+  if(day<=7) return 2;
+  if(day<=14) return 3;
+  return 4;
+}
+
+function getDaysLeftInWeek(wid){
+  const now=new Date();
+  const day=now.getDate();
+  if(wid===1){
+    // 25th to end of month
+    const endOfMonth=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+    return Math.max(0,endOfMonth-day+1);
+  } else if(wid===2){ return Math.max(0,7-day+1); }
+  else if(wid===3){ return Math.max(0,14-day+1); }
+  else { return Math.max(0,24-day+1); }
+}
+
+function getPeriodLabel(periodKey){
+  const [y,m]=periodKey.split('-');
+  const mi=parseInt(m)-1;
+  const nextMi=(mi+1)%12;
+  const nextY=mi===11?parseInt(y)+1:parseInt(y);
+  return `${CONFIG.payDay} ${MONTHS[mi].slice(0,3)} – 24 ${MONTHS[nextMi].slice(0,3)} ${nextY}`;
+}
+
+let currentWeekId=getCurrentWeekId();
 let sheetCat=null;
 let numStr='';
 
 // ── State ─────────────────────────────────────────────────────────────────
-function defaultState(){
-  const n=new Date();
+function defaultState(period){
   return{
-    monthYear:`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`,
+    monthYear:period||getCurrentPeriod(),
     weeks:[1,2,3,4].map(w=>({id:w,pickleball:false,entries:[],totalSpend:0}))
   };
 }
-function getState(){try{const s=localStorage.getItem('budg_v3');return s?JSON.parse(s):defaultState();}catch{return defaultState();}}
+
+function getState(){
+  try{
+    const raw=localStorage.getItem('budg_v3');
+    let s=raw?JSON.parse(raw):defaultState();
+    const period=getCurrentPeriod();
+    // Auto-archive and reset if period has changed
+    if(s.monthYear!==period){
+      const allEntries=s.weeks.flatMap((w,i)=>w.entries.map(e=>({...e,week:i+1})));
+      const totalSpent=allEntries.reduce((a,e)=>a+e.amount,0);
+      if(totalSpent>0) _archiveState(s);
+      s=defaultState(period);
+      localStorage.setItem('budg_v3',JSON.stringify(s));
+      currentWeekId=getCurrentWeekId();
+    }
+    return s;
+  }catch{return defaultState();}
+}
 function setState(s){localStorage.setItem('budg_v3',JSON.stringify(s));}
 
 // ── Calc ──────────────────────────────────────────────────────────────────
@@ -511,11 +644,30 @@ function render(){
   const cats=['personalCare','snacks','onlineShopping','other'];
   cats.forEach(cat=>{
     const catSpent=week.entries.filter(e=>e.cat===cat).reduce((a,e)=>a+e.amount,0);
-    const catPct=budget>0?Math.min((catSpent/budget)*100,100):0;
     document.getElementById(`cat-disp-${cat}`).textContent=fmt(catSpent);
-    document.getElementById(`cat-bar-${cat}`).style.width=catPct+'%';
     document.getElementById(`cat-reset-${cat}`).style.display=catSpent>0?'inline':'none';
   });
+
+  // Daily rate + on-track badge
+  const daysLeft=getDaysLeftInWeek(currentWeekId);
+  const dailyAllowed=daysLeft>0?Math.round(remaining/daysLeft):0;
+  const idealSpentByNow=budget-(CONFIG.weeklyBase/7*(daysLeft));
+  const pctThrough=budget>0?idealSpentByNow/budget:0;
+  const actualPct=budget>0?spent/budget:0;
+  const rateEl=document.getElementById('daily-rate');
+  const badgeEl=document.getElementById('on-track-badge');
+  if(daysLeft===0){
+    rateEl.textContent='Last day of the week';
+  } else {
+    rateEl.textContent=`${fmt(remaining)} over ${daysLeft} day${daysLeft!==1?'s':''} = ${fmt(dailyAllowed)}/day`;
+  }
+  if(over){
+    badgeEl.textContent='Over budget';badgeEl.className='on-track-badge over';
+  } else if(actualPct>pctThrough+0.15){
+    badgeEl.textContent='Spending fast';badgeEl.className='on-track-badge warn';
+  } else {
+    badgeEl.textContent='On track';badgeEl.className='on-track-badge good';
+  }
 
   // Week strip
   const strip=document.getElementById('week-strip');
@@ -578,6 +730,60 @@ function resetCat(cat){
   if(!confirm(`Clear all ${CAT_NAMES[cat]} entries this week?`))return;
   const s=getState();
   s.weeks[currentWeekId-1].entries=s.weeks[currentWeekId-1].entries.filter(e=>e.cat!==cat);
+  setState(s);
+  render();
+}
+
+const CAT_COLORS_HEX={personalCare:'#f472b6',snacks:'#f5c842',onlineShopping:'#60a5fa',other:'#a78bfa'};
+
+function onSlider(cat,input){
+  const val=parseInt(input.value);
+  const pct=(val/850)*100;
+  const color=CAT_COLORS_HEX[cat];
+  input.style.background=`linear-gradient(to right,${color} ${pct}%,#ffffff10 ${pct}%)`;
+  const lbl=document.getElementById(`sla-${cat}`);
+  const btn=document.getElementById(`slab-${cat}`);
+  if(val===0){
+    lbl.textContent='Drag to add';
+    lbl.className='slider-amount zero';
+    btn.className='slider-add-btn';
+  } else {
+    lbl.textContent=`R${val}`;
+    lbl.className='slider-amount';
+    btn.className='slider-add-btn visible';
+  }
+}
+
+function addFromSlider(cat){
+  const input=document.getElementById(`sli-${cat}`);
+  const val=parseInt(input.value);
+  if(!val||val<=0)return;
+  // For Other, open the sheet with pre-filled amount so they can add a note
+  if(cat==='other'){
+    numStr=String(val);
+    openSheet('other');
+    updateAmountDisplay();
+    // Reset slider
+    input.value=0;
+    onSlider(cat,input);
+    return;
+  }
+  const s=getState();
+  const now=new Date();
+  const time=now.toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'})+' · '+now.toLocaleDateString('en-ZA',{day:'numeric',month:'short'});
+  s.weeks[currentWeekId-1].entries.push({cat,amount:val,time,note:''});
+  setState(s);
+  // Reset slider
+  input.value=0;
+  onSlider(cat,input);
+  render();
+}
+
+function quickAdd(cat,amount){
+  const s=getState();
+  const now=new Date();
+  const time=now.toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'})+' · '+now.toLocaleDateString('en-ZA',{day:'numeric',month:'short'});
+  s.weeks[currentWeekId-1].entries.push({cat,amount,time,note:''});
   setState(s);
   render();
 }
@@ -780,27 +986,25 @@ function showPage(name){
 function getHistory(){try{return JSON.parse(localStorage.getItem('budg_history')||'[]');}catch{return[];}}
 function setHistory(h){localStorage.setItem('budg_history',JSON.stringify(h));}
 
-function startNewMonth(){
-  // Archive current month before resetting
-  const s=getState();
+function _archiveState(s){
+  const cats=['personalCare','snacks','onlineShopping','other'];
   const allEntries=s.weeks.flatMap((w,i)=>w.entries.map(e=>({...e,week:i+1})));
   const totalSpent=allEntries.reduce((a,e)=>a+e.amount,0);
-  if(totalSpent>0){
-    const cats=['personalCare','snacks','onlineShopping','other'];
-    const catBreakdown={};
-    cats.forEach(c=>{catBreakdown[c]=allEntries.filter(e=>e.cat===c).reduce((a,e)=>a+e.amount,0);});
-    const weekBreakdown=s.weeks.map((w,i)=>({
-      week:i+1,pickleball:w.pickleball,
-      spent:w.entries.reduce((a,e)=>a+e.amount,0)
-    }));
-    const h=getHistory();
-    // Don't duplicate same month
-    const filtered=h.filter(m=>m.monthYear!==s.monthYear);
-    filtered.unshift({monthYear:s.monthYear,totalSpent,catBreakdown,weekBreakdown,entries:allEntries});
-    setHistory(filtered.slice(0,24)); // keep 2 years
-  }
-  setState(defaultState());
-  currentWeekId=1;
+  const catBreakdown={};
+  cats.forEach(c=>{catBreakdown[c]=allEntries.filter(e=>e.cat===c).reduce((a,e)=>a+e.amount,0);});
+  const weekBreakdown=s.weeks.map((w,i)=>({week:i+1,pickleball:w.pickleball,spent:w.entries.reduce((a,e)=>a+e.amount,0)}));
+  const h=getHistory().filter(m=>m.monthYear!==s.monthYear);
+  h.unshift({monthYear:s.monthYear,totalSpent,catBreakdown,weekBreakdown,entries:allEntries});
+  setHistory(h.slice(0,24));
+}
+
+function startNewMonth(){
+  const s=getState();
+  const allEntries=s.weeks.flatMap(w=>w.entries);
+  if(allEntries.length>0) _archiveState(s);
+  const newState=defaultState(getCurrentPeriod());
+  setState(newState);
+  currentWeekId=getCurrentWeekId();
   render();
 }
 function exportData(){
@@ -811,6 +1015,8 @@ function exportData(){
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────
+currentWeekId=getCurrentWeekId();
+getState(); // triggers auto-archive check on load
 render();
 </script>
 </body>
