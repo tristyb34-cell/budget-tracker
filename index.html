@@ -5,537 +5,559 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Budget</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#0f0f0f;--card:#1a1a1a;--card2:#222;--border:#2a2a2a;
-  --green:#4ade80;--red:#f87171;--text:#f5f5f5;--muted:#777;
-  --primary:#6366f1;--primary-dim:#1e1b4b;
+  --bg:#0a0a0f;--card:#13131a;--card2:#1a1a24;--border:#222230;
+  --text:#f0f0ff;--muted:#555570;--muted2:#888899;
+  --green:#22d48a;--red:#ff5f6d;--yellow:#f5c842;--blue:#4f9fff;
+  --primary:#7c6ff7;--primary2:#a78bfa;
 }
-body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;padding-bottom:90px}
-.view{display:none}.view.active{display:block}
-/* Header */
-.header{padding:20px 16px 14px;border-bottom:1px solid var(--border)}
-.header h1{font-size:22px;font-weight:700}
-.header .sub{font-size:13px;color:var(--muted);margin-top:3px}
-/* Section label */
-.sec{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin:20px 16px 8px}
-/* Summary row */
-.summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:16px 16px 4px}
-.sum-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 10px;text-align:center}
-.sum-card .amt{font-size:17px;font-weight:700}
-.sum-card .lbl{font-size:11px;color:var(--muted);margin-top:3px}
-/* Week cards */
-.week-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin:0 16px 10px;cursor:pointer;transition:border-color .15s}
-.week-card:active{border-color:var(--primary)}
-.wk-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.wk-name{font-weight:700;font-size:15px}
-.wk-badge{font-size:11px;padding:3px 9px;border-radius:20px;background:#222}
-.wk-badge.over{background:#3f1515;color:var(--red)}
-.wk-badge.under{background:#14301e;color:var(--green)}
-.wk-badge.empty{background:#222;color:var(--muted)}
-.progress-bar{height:6px;background:#252525;border-radius:3px;overflow:hidden;margin-bottom:10px}
-.progress-fill{height:100%;border-radius:3px;transition:width .3s}
-.wk-amts{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
-.wk-amts span{font-weight:600;color:var(--text)}
-.pickle-tag{font-size:11px;margin-left:6px;color:#60a5fa;background:#1e293b;padding:2px 7px;border-radius:10px;border:1px solid #334155}
-/* Card generic */
-.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin:0 16px 12px}
-/* Back */
-.back-btn{display:flex;align-items:center;gap:6px;color:var(--primary);background:none;border:none;font-size:15px;cursor:pointer;padding:0;margin-bottom:16px}
-/* Week header info */
-.wk-header-card{background:var(--primary-dim);border:1px solid var(--primary);border-radius:14px;padding:16px;margin:0 16px 12px}
-.wk-header-card .big{font-size:28px;font-weight:800}
-.wk-header-card .detail{font-size:13px;color:#a5b4fc;margin-top:4px}
-/* Toggle row */
-.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)}
-.toggle-row:last-child{border-bottom:none}
-.tl-label{font-size:15px;font-weight:500}
-.tl-sub{font-size:12px;color:var(--muted);margin-top:2px}
-.toggle{position:relative;width:46px;height:28px;flex-shrink:0}
-.toggle input{opacity:0;width:0;height:0}
-.slider{position:absolute;inset:0;background:#333;border-radius:14px;cursor:pointer;transition:.2s}
-.slider:before{content:'';position:absolute;width:22px;height:22px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
-.toggle input:checked+.slider{background:var(--primary)}
-.toggle input:checked+.slider:before{transform:translateX(18px)}
-/* Tabs */
-.tabs{display:flex;background:#111;border-radius:10px;padding:3px;margin-bottom:16px;border:1px solid var(--border)}
-.tab{flex:1;text-align:center;padding:9px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--muted);transition:all .2s;font-weight:500}
-.tab.active{background:var(--primary);color:#fff;font-weight:700}
-/* Inputs */
-.input-group{margin-bottom:14px}
-.input-group label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:500}
-.input-wrap{display:flex;align-items:center;background:#111;border:1px solid var(--border);border-radius:10px;overflow:hidden}
-.input-prefix{padding:13px 12px;color:var(--muted);font-size:15px;background:#1a1a1a;border-right:1px solid var(--border)}
-.input-wrap input{flex:1;background:none;border:none;color:var(--text);font-size:16px;padding:13px 12px;outline:none;width:100%}
-/* Buttons */
-.btn{width:100%;padding:15px;border-radius:12px;border:none;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .15s}
-.btn:active{opacity:.8}
-.btn-primary{background:var(--primary);color:#fff}
-.btn-ghost{background:var(--card);color:var(--text);border:1px solid var(--border)}
-.btn-danger{background:#3f1515;color:var(--red);border:1px solid #7f1d1d}
-/* Info rows */
-.info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;font-size:14px;border-bottom:1px solid var(--border)}
-.info-row:last-child{border-bottom:none}
-.info-row .ir-val{font-weight:600}
-/* Category spend list */
-.cat-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
-.cat-row:last-child{border-bottom:none}
-.cat-name{font-size:14px;color:var(--muted)}
-.cat-amt{font-size:14px;font-weight:600}
-/* Colors */
-.green{color:var(--green)}.red{color:var(--red)}.muted{color:var(--muted)}.primary{color:var(--primary)}
-/* Bottom nav */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);padding:10px 0 24px;display:flex;justify-content:space-around}
-.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted);cursor:pointer;padding:0 16px}
-.nav-item.active{color:var(--primary)}
+html,body{height:100%;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;min-height:100vh;padding-bottom:100px}
+
+/* ── Scrollable page ── */
+.page{display:none;animation:fadeIn .2s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ── Hero Card ── */
+.hero{margin:16px;border-radius:24px;padding:28px 24px;position:relative;overflow:hidden;background:linear-gradient(135deg,#1a0a3a 0%,#0d1f40 50%,#0a2a1a 100%)}
+.hero::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(124,111,247,.3),rgba(34,212,138,.15));pointer-events:none}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+.hero-week{font-size:13px;font-weight:600;color:var(--primary2);text-transform:uppercase;letter-spacing:1px}
+.hero-month{font-size:13px;color:var(--muted2)}
+.hero-center{display:flex;align-items:center;justify-content:space-between}
+.hero-left{}
+.hero-label{font-size:13px;color:var(--muted2);margin-bottom:6px}
+.hero-amount{font-size:52px;font-weight:800;letter-spacing:-2px;line-height:1}
+.hero-amount.positive{color:var(--green)}
+.hero-amount.negative{color:var(--red)}
+.hero-sub{font-size:13px;color:var(--muted2);margin-top:8px}
+.hero-sub span{color:var(--text);font-weight:600}
+
+/* ── Ring ── */
+.ring-wrap{position:relative;width:90px;height:90px;flex-shrink:0}
+.ring-svg{width:90px;height:90px;transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:#ffffff10;stroke-width:8}
+.ring-fill{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .6s cubic-bezier(.4,0,.2,1)}
+.ring-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.ring-pct{font-size:16px;font-weight:800}
+.ring-pct-label{font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px}
+
+/* ── Pickleball banner ── */
+.pickle-banner{margin:0 16px 12px;border-radius:14px;padding:12px 16px;background:linear-gradient(90deg,#0f1e3a,#0f2a1e);border:1px solid #1e3a60;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.pickle-banner.active{background:linear-gradient(90deg,#0d2040,#0a2818);border-color:var(--primary)}
+.pickle-left{display:flex;align-items:center;gap:10px}
+.pickle-icon{font-size:22px}
+.pickle-text{font-size:14px;font-weight:600}
+.pickle-sub{font-size:12px;color:var(--muted2);margin-top:1px}
+.pill-toggle{position:relative;width:46px;height:28px;flex-shrink:0}
+.pill-toggle input{opacity:0;width:0;height:0}
+.pill-slider{position:absolute;inset:0;background:#252535;border-radius:14px;cursor:pointer;transition:.2s;border:1px solid var(--border)}
+.pill-slider:before{content:'';position:absolute;width:22px;height:22px;left:2px;top:2px;background:#555;border-radius:50%;transition:.2s}
+.pill-toggle input:checked+.pill-slider{background:var(--primary);border-color:var(--primary)}
+.pill-toggle input:checked+.pill-slider:before{transform:translateX(18px);background:#fff}
+
+/* ── Category Buttons ── */
+.sec-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin:20px 16px 10px}
+.cat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:0 16px}
+.cat-btn{border-radius:16px;padding:16px;border:1px solid var(--border);background:var(--card);cursor:pointer;text-align:left;transition:all .15s;position:relative;overflow:hidden}
+.cat-btn:active{transform:scale(.97)}
+.cat-btn::before{content:'';position:absolute;inset:0;opacity:.08;pointer-events:none}
+.cat-btn.personal-care::before{background:linear-gradient(135deg,#f472b6,#ec4899)}
+.cat-btn.snacks::before{background:linear-gradient(135deg,#f5c842,#f97316)}
+.cat-btn.shopping::before{background:linear-gradient(135deg,#60a5fa,#3b82f6)}
+.cat-btn.other::before{background:linear-gradient(135deg,#a78bfa,#7c3aed)}
+.cat-icon{font-size:26px;margin-bottom:8px;display:block}
+.cat-name{font-size:13px;font-weight:700;color:var(--text);display:block;margin-bottom:2px}
+.cat-spent{font-size:12px;color:var(--muted2)}
+.cat-spent span{font-weight:600;color:var(--text)}
+.cat-bar{height:3px;border-radius:2px;margin-top:10px;background:#ffffff10;overflow:hidden}
+.cat-bar-fill{height:100%;border-radius:2px;transition:width .4s}
+
+/* ── Week Overview ── */
+.week-strip{margin:0 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.week-pip{border-radius:12px;padding:12px 8px;background:var(--card);border:1px solid var(--border);text-align:center;cursor:pointer;transition:all .15s}
+.week-pip.current{border-color:var(--primary);background:rgba(124,111,247,.1)}
+.week-pip:active{transform:scale(.95)}
+.pip-label{font-size:11px;font-weight:700;color:var(--muted2);margin-bottom:6px}
+.pip-bar{height:40px;background:#ffffff08;border-radius:6px;overflow:hidden;display:flex;align-items:flex-end;margin-bottom:6px}
+.pip-fill{width:100%;border-radius:6px;transition:height .4s}
+.pip-amt{font-size:10px;color:var(--muted2);font-weight:600}
+.pip-amt.over{color:var(--red)}
+.pip-amt.under{color:var(--green)}
+
+/* ── Log list ── */
+.log-item{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)}
+.log-item:last-child{border-bottom:none}
+.log-dot{width:8px;height:8px;border-radius:50%;margin-right:12px;flex-shrink:0}
+.log-name{font-size:14px;font-weight:500}
+.log-time{font-size:12px;color:var(--muted2)}
+.log-amt{font-size:15px;font-weight:700;color:var(--red)}
+.log-delete{font-size:18px;color:var(--muted);padding:0 0 0 12px;cursor:pointer}
+
+/* ── Bottom sheet ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;backdrop-filter:blur(4px)}
+.overlay.active{display:flex;align-items:flex-end}
+.sheet{background:var(--card);border-radius:24px 24px 0 0;padding:0 0 40px;width:100%;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.sheet.open{transform:none}
+.sheet-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 20px}
+.sheet-title{font-size:18px;font-weight:800;padding:0 20px;margin-bottom:4px}
+.sheet-sub{font-size:13px;color:var(--muted2);padding:0 20px;margin-bottom:20px}
+.amount-display{font-size:52px;font-weight:800;text-align:center;padding:20px;letter-spacing:-2px;min-height:90px;color:var(--text)}
+.amount-display.has-value{color:var(--primary2)}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin:0;padding:0 12px}
+.num-btn{padding:18px;font-size:24px;font-weight:600;background:var(--card2);border:none;color:var(--text);cursor:pointer;border-radius:12px;transition:background .1s;text-align:center}
+.num-btn:active{background:#2a2a3a}
+.num-btn.action{color:var(--primary2)}
+.num-btn.backspace{font-size:20px}
+.sheet-save{margin:12px;border-radius:16px;padding:18px;font-size:17px;font-weight:800;border:none;background:linear-gradient(135deg,var(--primary),var(--green));color:#fff;cursor:pointer;width:calc(100% - 24px);transition:opacity .15s}
+.sheet-save:active{opacity:.85}
+.sheet-save:disabled{opacity:.4}
+
+/* ── Bottom Nav ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,15,.95);border-top:1px solid var(--border);padding:10px 0 28px;display:flex;justify-content:space-around;backdrop-filter:blur(12px)}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted);cursor:pointer;padding:0 20px;font-weight:500}
+.nav-item.active{color:var(--primary2)}
 .nav-icon{font-size:22px}
-/* Balance note */
-.balance-note{font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.5}
-/* Divider */
-.divider{height:1px;background:var(--border);margin:16px 0}
-/* Settings items */
-.setting-item{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer}
-.setting-item:last-child{border-bottom:none}
-.si-label{font-size:15px}
-.si-val{font-size:14px;color:var(--muted)}
-/* New month screen */
-.new-month-card{background:linear-gradient(135deg,#1e1b4b,#0f172a);border:1px solid var(--primary);border-radius:16px;padding:24px;margin:32px 16px;text-align:center}
-.new-month-card h2{font-size:22px;font-weight:800;margin-bottom:8px}
-.new-month-card p{font-size:14px;color:#a5b4fc;margin-bottom:20px;line-height:1.5}
-/* Spacer */
+
+/* ── Settings page ── */
+.setting-card{background:var(--card);border:1px solid var(--border);border-radius:16px;margin:0 16px 12px;overflow:hidden}
+.setting-row{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border)}
+.setting-row:last-child{border-bottom:none}
+.sr-label{font-size:14px;color:var(--muted2)}
+.sr-val{font-size:14px;font-weight:700}
+.setting-action{display:flex;justify-content:space-between;align-items:center;padding:16px;cursor:pointer}
+.sa-label{font-size:15px;font-weight:600}
+.sa-chevron{color:var(--muted);font-size:18px}
+.danger-btn{margin:0 16px;border-radius:14px;padding:16px;font-size:15px;font-weight:700;border:1px solid #3f1515;background:#1a0a0a;color:var(--red);cursor:pointer;width:calc(100% - 32px)}
+
+/* ── Misc ── */
 .sp{height:16px}
+.empty-state{text-align:center;padding:32px 20px;color:var(--muted2);font-size:14px}
+.empty-state .emoji{font-size:32px;margin-bottom:10px}
+.balance-row{display:flex;gap:10px;margin:0 16px 12px}
+.bal-card{flex:1;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;text-align:center}
+.bal-label{font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;font-weight:600}
+.bal-val{font-size:20px;font-weight:800}
+
+/* Category color dots */
+.dot-personal{background:linear-gradient(135deg,#f472b6,#ec4899)}
+.dot-snacks{background:linear-gradient(135deg,#f5c842,#f97316)}
+.dot-shopping{background:linear-gradient(135deg,#60a5fa,#3b82f6)}
+.dot-other{background:linear-gradient(135deg,#a78bfa,#7c3aed)}
 </style>
 </head>
 <body>
 
-<!-- DASHBOARD VIEW -->
-<div id="view-dashboard" class="view active">
-  <div class="header">
-    <h1 id="dash-month">April 2026</h1>
-    <div class="sub" id="dash-sub">R3,400 discretionary this month</div>
-  </div>
+<!-- ══ MAIN PAGE ══ -->
+<div id="page-main" class="page active">
 
-  <div id="new-month-prompt" style="display:none">
-    <div class="new-month-card">
-      <h2>New Month</h2>
-      <p>Start fresh for a new month. Your previous data will be cleared.</p>
-      <button class="btn btn-primary" onclick="startNewMonth()">Start New Month</button>
-    </div>
-  </div>
-
-  <div id="dash-content">
-    <div class="summary">
-      <div class="sum-card">
-        <div class="amt" id="sum-budget">R3,400</div>
-        <div class="lbl">Budget</div>
+  <!-- Hero -->
+  <div class="hero" id="hero-card">
+    <div class="hero-top">
+      <div>
+        <div class="hero-week" id="hero-week-label">Week 1</div>
+        <div class="hero-month" id="hero-month-label">April 2026</div>
       </div>
-      <div class="sum-card">
-        <div class="amt red" id="sum-spent">R0</div>
-        <div class="lbl">Spent</div>
-      </div>
-      <div class="sum-card">
-        <div class="amt green" id="sum-left">R3,400</div>
-        <div class="lbl">Left</div>
+      <div style="text-align:right">
+        <div style="font-size:11px;color:var(--muted2)">MONTHLY LEFT</div>
+        <div style="font-size:16px;font-weight:800" id="hero-month-left">R3,400</div>
       </div>
     </div>
-
-    <div class="sec">Weekly Breakdown</div>
-    <div id="week-cards"></div>
-  </div>
-</div>
-
-<!-- WEEK DETAIL VIEW -->
-<div id="view-week" class="view">
-  <div style="padding:16px 16px 0">
-    <button class="back-btn" onclick="showView('dashboard')">&#8592; Back</button>
-  </div>
-
-  <div id="week-header-card" class="wk-header-card"></div>
-
-  <div style="padding:0 16px">
-    <div class="card" style="margin:0 0 12px">
-      <div class="toggle-row" style="padding-top:0">
-        <div>
-          <div class="tl-label">🏓 Did you play pickleball?</div>
-          <div class="tl-sub">Deducts R200 from this week</div>
+    <div class="hero-center">
+      <div class="hero-left">
+        <div class="hero-label">Remaining this week</div>
+        <div class="hero-amount positive" id="hero-amount">R850</div>
+        <div class="hero-sub" id="hero-sub">Spent <span id="hero-spent">R0</span> of <span id="hero-budget">R850</span></div>
+      </div>
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 90 90">
+          <circle class="ring-bg" cx="45" cy="45" r="38"/>
+          <circle class="ring-fill" id="ring-fill" cx="45" cy="45" r="38"
+            stroke="#22d48a"
+            stroke-dasharray="238.76"
+            stroke-dashoffset="238.76"/>
+        </svg>
+        <div class="ring-label">
+          <div class="ring-pct" id="ring-pct">0%</div>
+          <div class="ring-pct-label">used</div>
         </div>
-        <label class="toggle">
-          <input type="checkbox" id="pickleball-toggle" onchange="onPickleballChange()">
-          <span class="slider"></span>
-        </label>
       </div>
     </div>
-
-    <div class="tabs">
-      <div class="tab active" id="tab-cat" onclick="switchTab('cat')">By Category</div>
-      <div class="tab" id="tab-bal" onclick="switchTab('bal')">By Balance</div>
-    </div>
-
-    <!-- Category tab -->
-    <div id="tab-content-cat">
-      <div class="input-group">
-        <label>Personal Care</label>
-        <div class="input-wrap"><span class="input-prefix">R</span><input type="number" id="cat-personalCare" placeholder="0" min="0" oninput="onCategoryInput()"></div>
-      </div>
-      <div class="input-group">
-        <label>Snacks</label>
-        <div class="input-wrap"><span class="input-prefix">R</span><input type="number" id="cat-snacks" placeholder="0" min="0" oninput="onCategoryInput()"></div>
-      </div>
-      <div class="input-group">
-        <label>Online / Shop Purchases</label>
-        <div class="input-wrap"><span class="input-prefix">R</span><input type="number" id="cat-onlineShopping" placeholder="0" min="0" oninput="onCategoryInput()"></div>
-      </div>
-      <div class="input-group">
-        <label>Other</label>
-        <div class="input-wrap"><span class="input-prefix">R</span><input type="number" id="cat-other" placeholder="0" min="0" oninput="onCategoryInput()"></div>
-      </div>
-      <div class="card" style="margin:0 0 12px">
-        <div class="info-row"><span class="muted">Total entered</span><span class="ir-val" id="cat-total-display">R0</span></div>
-      </div>
-    </div>
-
-    <!-- Balance tab -->
-    <div id="tab-content-bal" style="display:none">
-      <p class="balance-note">Enter your current bank balance. We'll calculate how much you've spent this week based on what your balance should be.</p>
-      <div class="input-group">
-        <label>Current Bank Balance</label>
-        <div class="input-wrap"><span class="input-prefix">R</span><input type="number" id="bal-current" placeholder="e.g. 8500" min="0" oninput="onBalanceInput()"></div>
-      </div>
-      <div class="card" style="margin:0 0 12px">
-        <div class="info-row"><span class="muted">Calculated spend this week</span><span class="ir-val" id="bal-spend-display">—</span></div>
-      </div>
-    </div>
-
-    <button class="btn btn-primary" id="save-week-btn" onclick="saveWeek()" style="margin-bottom:12px">Save Week</button>
-    <button class="btn btn-ghost" onclick="clearWeek()" style="margin-bottom:12px">Clear This Week</button>
   </div>
+
+  <!-- Balance row -->
+  <div class="balance-row">
+    <div class="bal-card">
+      <div class="bal-label">Weekly Budget</div>
+      <div class="bal-val" id="bal-weekly">R850</div>
+    </div>
+    <div class="bal-card">
+      <div class="bal-label">Month Spent</div>
+      <div class="bal-val" id="bal-month-spent" style="color:var(--red)">R0</div>
+    </div>
+    <div class="bal-card">
+      <div class="bal-label">Month Left</div>
+      <div class="bal-val" id="bal-month-left" style="color:var(--green)">R3,400</div>
+    </div>
+  </div>
+
+  <!-- Pickleball -->
+  <div class="pickle-banner" id="pickle-banner" onclick="togglePickleball()">
+    <div class="pickle-left">
+      <div class="pickle-icon">🏓</div>
+      <div>
+        <div class="pickle-text">Pickleball this week?</div>
+        <div class="pickle-sub" id="pickle-sub">Tap to mark as played (-R200)</div>
+      </div>
+    </div>
+    <label class="pill-toggle" onclick="event.stopPropagation()">
+      <input type="checkbox" id="pickle-check" onchange="togglePickleball()">
+      <span class="pill-slider"></span>
+    </label>
+  </div>
+
+  <!-- Categories -->
+  <div class="sec-title">Add Spend</div>
+  <div class="cat-grid">
+    <div class="cat-btn personal-care" onclick="openSheet('personalCare')">
+      <span class="cat-icon">💆</span>
+      <span class="cat-name">Personal Care</span>
+      <span class="cat-spent">Spent: <span id="cat-disp-personalCare">R0</span></span>
+      <div class="cat-bar"><div class="cat-bar-fill" id="cat-bar-personalCare" style="background:linear-gradient(90deg,#f472b6,#ec4899);width:0%"></div></div>
+    </div>
+    <div class="cat-btn snacks" onclick="openSheet('snacks')">
+      <span class="cat-icon">🍫</span>
+      <span class="cat-name">Snacks</span>
+      <span class="cat-spent">Spent: <span id="cat-disp-snacks">R0</span></span>
+      <div class="cat-bar"><div class="cat-bar-fill" id="cat-bar-snacks" style="background:linear-gradient(90deg,#f5c842,#f97316);width:0%"></div></div>
+    </div>
+    <div class="cat-btn shopping" onclick="openSheet('onlineShopping')">
+      <span class="cat-icon">🛒</span>
+      <span class="cat-name">Online / Shopping</span>
+      <span class="cat-spent">Spent: <span id="cat-disp-onlineShopping">R0</span></span>
+      <div class="cat-bar"><div class="cat-bar-fill" id="cat-bar-onlineShopping" style="background:linear-gradient(90deg,#60a5fa,#3b82f6);width:0%"></div></div>
+    </div>
+    <div class="cat-btn other" onclick="openSheet('other')">
+      <span class="cat-icon">✨</span>
+      <span class="cat-name">Other</span>
+      <span class="cat-spent">Spent: <span id="cat-disp-other">R0</span></span>
+      <div class="cat-bar"><div class="cat-bar-fill" id="cat-bar-other" style="background:linear-gradient(90deg,#a78bfa,#7c3aed);width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- Week navigation -->
+  <div class="sec-title">All Weeks</div>
+  <div class="week-strip" id="week-strip"></div>
+
+  <!-- Log -->
+  <div class="sec-title">This Week's Log</div>
+  <div class="setting-card" id="log-list" style="margin-bottom:12px"></div>
+  <div class="sp"></div>
 </div>
 
-<!-- SETTINGS VIEW -->
-<div id="view-settings" class="view">
-  <div class="header">
-    <h1>Settings</h1>
-    <div class="sub">Adjust your budget config</div>
+<!-- ══ SETTINGS PAGE ══ -->
+<div id="page-settings" class="page">
+  <div style="padding:20px 16px 14px;border-bottom:1px solid var(--border)">
+    <div style="font-size:22px;font-weight:700">Settings</div>
+    <div style="font-size:13px;color:var(--muted2);margin-top:3px">Your budget breakdown</div>
   </div>
 
-  <div class="sec">Monthly Budget</div>
-  <div class="card">
-    <div class="info-row"><span>Monthly take-home</span><span class="ir-val">R14,500</span></div>
-    <div class="info-row"><span>Fixed expenses</span><span class="ir-val red">R10,600</span></div>
-    <div class="info-row"><span>Cigarettes (fixed)</span><span class="ir-val red">R500</span></div>
-    <div class="info-row"><span>Discretionary pool</span><span class="ir-val green">R3,400</span></div>
-    <div class="info-row"><span>Weekly base budget</span><span class="ir-val primary">R850</span></div>
+  <div class="sec-title">Monthly Overview</div>
+  <div class="setting-card">
+    <div class="setting-row"><span class="sr-label">Take-home</span><span class="sr-val">R14,500</span></div>
+    <div class="setting-row"><span class="sr-label">Fixed expenses</span><span class="sr-val" style="color:var(--red)">R10,600</span></div>
+    <div class="setting-row"><span class="sr-label">Cigarettes</span><span class="sr-val" style="color:var(--red)">R500</span></div>
+    <div class="setting-row"><span class="sr-label">Discretionary</span><span class="sr-val" style="color:var(--green)">R3,400</span></div>
+    <div class="setting-row"><span class="sr-label">Weekly base</span><span class="sr-val" style="color:var(--primary2)">R850/wk</span></div>
   </div>
 
-  <div class="sec">Fixed Expenses Breakdown</div>
-  <div class="card">
-    <div class="info-row"><span>Rent</span><span class="ir-val">R4,500</span></div>
-    <div class="info-row"><span>Petrol</span><span class="ir-val">R1,000</span></div>
-    <div class="info-row"><span>Insurance</span><span class="ir-val">R1,500</span></div>
-    <div class="info-row"><span>Dad</span><span class="ir-val">R1,000</span></div>
-    <div class="info-row"><span>Subscriptions</span><span class="ir-val">R1,500</span></div>
-    <div class="info-row"><span>Work lunches</span><span class="ir-val">R1,100</span></div>
+  <div class="sec-title">Fixed Expenses</div>
+  <div class="setting-card">
+    <div class="setting-row"><span class="sr-label">Rent</span><span class="sr-val">R4,500</span></div>
+    <div class="setting-row"><span class="sr-label">Petrol</span><span class="sr-val">R1,000</span></div>
+    <div class="setting-row"><span class="sr-label">Insurance</span><span class="sr-val">R1,500</span></div>
+    <div class="setting-row"><span class="sr-label">Dad</span><span class="sr-val">R1,000</span></div>
+    <div class="setting-row"><span class="sr-label">Subscriptions</span><span class="sr-val">R1,500</span></div>
+    <div class="setting-row"><span class="sr-label">Work lunches</span><span class="sr-val">R1,100</span></div>
   </div>
 
-  <div class="sec">Actions</div>
-  <div class="card">
-    <div class="setting-item" onclick="if(confirm('Reset all data for a new month?')) startNewMonth()">
-      <span class="si-label">Start New Month</span>
-      <span class="si-val">&#8250;</span>
+  <div class="sec-title">Actions</div>
+  <div class="setting-card" style="margin-bottom:12px">
+    <div class="setting-action" onclick="if(confirm('Start a fresh month? All data will be cleared.')) startNewMonth()">
+      <span class="sa-label">Start New Month</span><span class="sa-chevron">›</span>
     </div>
-    <div class="setting-item" onclick="exportData()">
-      <span class="si-label">Export Data</span>
-      <span class="si-val">&#8250;</span>
+    <div class="setting-action" onclick="exportData()">
+      <span class="sa-label">Export Data</span><span class="sa-chevron">›</span>
     </div>
   </div>
   <div class="sp"></div>
 </div>
 
-<!-- BOTTOM NAV -->
+<!-- ══ BOTTOM NAV ══ -->
 <div class="bottom-nav">
-  <div class="nav-item active" id="nav-dashboard" onclick="showView('dashboard')">
-    <div class="nav-icon">📊</div>
+  <div class="nav-item active" id="nav-main" onclick="showPage('main')">
+    <div class="nav-icon">💰</div>
     <div>Budget</div>
   </div>
-  <div class="nav-item" id="nav-settings" onclick="showView('settings')">
+  <div class="nav-item" id="nav-settings" onclick="showPage('settings')">
     <div class="nav-icon">⚙️</div>
     <div>Settings</div>
   </div>
 </div>
 
+<!-- ══ ADD SPEND BOTTOM SHEET ══ -->
+<div class="overlay" id="overlay" onclick="closeSheet()">
+  <div class="sheet" id="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="sheet-title">Add Spend</div>
+    <div class="sheet-sub" id="sheet-sub">How much did you spend?</div>
+    <div class="amount-display" id="amount-display">R0</div>
+    <div class="numpad">
+      <button class="num-btn" onclick="numPress('1')">1</button>
+      <button class="num-btn" onclick="numPress('2')">2</button>
+      <button class="num-btn" onclick="numPress('3')">3</button>
+      <button class="num-btn" onclick="numPress('4')">4</button>
+      <button class="num-btn" onclick="numPress('5')">5</button>
+      <button class="num-btn" onclick="numPress('6')">6</button>
+      <button class="num-btn" onclick="numPress('7')">7</button>
+      <button class="num-btn" onclick="numPress('8')">8</button>
+      <button class="num-btn" onclick="numPress('9')">9</button>
+      <button class="num-btn action" onclick="numPress('.')">.</button>
+      <button class="num-btn" onclick="numPress('0')">0</button>
+      <button class="num-btn backspace action" onclick="numPress('back')">⌫</button>
+    </div>
+    <button class="sheet-save" id="sheet-save" onclick="saveEntry()" disabled>Add Spend</button>
+  </div>
+</div>
+
 <script>
-const CONFIG = {
-  monthlyDiscretionary: 3400,
-  weeklyBase: 850,
-  pickleballCost: 200,
-  cigarettes: 500,
-};
+const CONFIG={monthlyDiscretionary:3400,weeklyBase:850,pickleballCost:200};
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const CAT_NAMES={personalCare:'Personal Care',snacks:'Snacks',onlineShopping:'Online / Shopping',other:'Other'};
+const CAT_DOTS={personalCare:'dot-personal',snacks:'dot-snacks',onlineShopping:'dot-shopping',other:'dot-other'};
+const CAT_COLORS={personalCare:'linear-gradient(90deg,#f472b6,#ec4899)',snacks:'linear-gradient(90deg,#f5c842,#f97316)',onlineShopping:'linear-gradient(90deg,#60a5fa,#3b82f6)',other:'linear-gradient(90deg,#a78bfa,#7c3aed)'};
 
-const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-
-let currentWeekId = 1;
-let currentTab = 'cat';
+let currentWeekId=1;
+let sheetCat=null;
+let numStr='';
 
 // ── State ─────────────────────────────────────────────────────────────────
-
-function defaultState() {
-  const now = new Date();
-  return {
-    monthYear: `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`,
-    startingBalance: null,
-    weeks: [1,2,3,4].map(w => ({
-      id: w, pickleball: false,
-      categorySpend: {personalCare:0, snacks:0, onlineShopping:0, other:0},
-      balanceEntry: null,
-      totalSpend: 0,
-      inputMode: 'cat',
-      hasData: false,
-    }))
+function defaultState(){
+  const n=new Date();
+  return{
+    monthYear:`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`,
+    weeks:[1,2,3,4].map(w=>({id:w,pickleball:false,entries:[],totalSpend:0}))
   };
 }
+function getState(){try{const s=localStorage.getItem('budg_v3');return s?JSON.parse(s):defaultState();}catch{return defaultState();}}
+function setState(s){localStorage.setItem('budg_v3',JSON.stringify(s));}
 
-function getState() {
-  try {
-    const s = localStorage.getItem('budget_v2');
-    return s ? JSON.parse(s) : defaultState();
-  } catch { return defaultState(); }
+// ── Calc ──────────────────────────────────────────────────────────────────
+function calcBudgets(weeks){
+  let carry=0;
+  return weeks.map(w=>{
+    const base=CONFIG.weeklyBase+carry;
+    const budget=base-(w.pickleball?CONFIG.pickleballCost:0);
+    const spent=w.entries.reduce((a,e)=>a+e.amount,0);
+    const remaining=budget-spent;
+    carry=remaining;
+    return{budget:Math.max(budget,0),budgetRaw:budget,spent,remaining};
+  });
 }
 
-function setState(s) {
-  localStorage.setItem('budget_v2', JSON.stringify(s));
+function getCurrentWeekId(){
+  // Auto-advance: pick first week that isn't "full" yet
+  // Simple: just use stored currentWeekId
+  return currentWeekId;
 }
 
-// ── Budget Calculations ───────────────────────────────────────────────────
+// ── Render ────────────────────────────────────────────────────────────────
+function fmt(n){return 'R'+Math.abs(Math.round(n)).toLocaleString();}
 
-function calcWeekBudgets(weeks) {
-  const results = [];
-  let carryover = 0;
-  for (const week of weeks) {
-    const base = CONFIG.weeklyBase + carryover;
-    const budget = base - (week.pickleball ? CONFIG.pickleballCost : 0);
-    const spent = week.totalSpend || 0;
-    const remaining = budget - spent;
-    carryover = remaining; // positive = carry forward, negative = overspent
-    results.push({ budget: Math.max(budget, 0), budgetRaw: budget, spent, remaining });
-  }
-  return results;
-}
+function render(){
+  const s=getState();
+  const budgets=calcBudgets(s.weeks);
+  const wi=currentWeekId-1;
+  const {budget,spent,remaining}=budgets[wi];
+  const week=s.weeks[wi];
+  const pct=budget>0?Math.min((spent/budget)*100,100):0;
+  const over=remaining<0;
+  const monthSpent=s.weeks.reduce((a,w)=>a+w.entries.reduce((b,e)=>b+e.amount,0),0);
+  const monthLeft=CONFIG.monthlyDiscretionary-monthSpent;
+  const [year,month]=s.monthYear.split('-');
 
-// ── Rendering ─────────────────────────────────────────────────────────────
+  // Hero
+  document.getElementById('hero-week-label').textContent=`Week ${currentWeekId}`;
+  document.getElementById('hero-month-label').textContent=`${MONTHS[parseInt(month)-1]} ${year}`;
+  document.getElementById('hero-month-left').textContent=fmt(monthLeft);
+  document.getElementById('hero-month-left').style.color=monthLeft<0?'var(--red)':'var(--green)';
+  const amtEl=document.getElementById('hero-amount');
+  amtEl.textContent=(over?'-':'')+fmt(Math.abs(remaining));
+  amtEl.className='hero-amount '+(over?'negative':'positive');
+  document.getElementById('hero-spent').textContent=fmt(spent);
+  document.getElementById('hero-budget').textContent=fmt(budget);
 
-function fmt(n) {
-  return 'R' + Math.abs(Math.round(n)).toLocaleString();
-}
+  // Ring
+  const circ=238.76;
+  const offset=circ-(pct/100)*circ;
+  const ring=document.getElementById('ring-fill');
+  ring.style.strokeDashoffset=offset;
+  ring.style.stroke=over?'#ff5f6d':pct>75?'#f5c842':'#22d48a';
+  document.getElementById('ring-pct').textContent=Math.round(pct)+'%';
+  document.getElementById('ring-pct').style.color=over?'var(--red)':pct>75?'var(--yellow)':'var(--green)';
 
-function renderDashboard() {
-  const s = getState();
-  const budgets = calcWeekBudgets(s.weeks);
+  // Balance row
+  document.getElementById('bal-weekly').textContent=fmt(budget);
+  document.getElementById('bal-month-spent').textContent=fmt(monthSpent);
+  document.getElementById('bal-month-left').textContent=fmt(monthLeft);
+  document.getElementById('bal-month-left').style.color=monthLeft<0?'var(--red)':'var(--green)';
 
-  // Month title
-  const [year, month] = s.monthYear.split('-');
-  document.getElementById('dash-month').textContent = `${MONTHS[parseInt(month)-1]} ${year}`;
+  // Pickleball
+  const pb=document.getElementById('pickle-check');
+  pb.checked=week.pickleball;
+  document.getElementById('pickle-banner').classList.toggle('active',week.pickleball);
+  document.getElementById('pickle-sub').textContent=week.pickleball?'Playing this week (-R200 deducted)':'Tap to mark as played (-R200)';
 
-  // Summary
-  const totalSpent = s.weeks.reduce((a,w) => a + (w.totalSpend||0), 0);
-  const totalLeft = CONFIG.monthlyDiscretionary - totalSpent;
-  document.getElementById('sum-budget').textContent = fmt(CONFIG.monthlyDiscretionary);
-  document.getElementById('sum-spent').textContent = fmt(totalSpent);
-  document.getElementById('sum-left').textContent = fmt(totalLeft);
-  document.getElementById('sum-left').className = `amt ${totalLeft < 0 ? 'red' : 'green'}`;
+  // Category cards
+  const cats=['personalCare','snacks','onlineShopping','other'];
+  cats.forEach(cat=>{
+    const catSpent=week.entries.filter(e=>e.cat===cat).reduce((a,e)=>a+e.amount,0);
+    const catPct=budget>0?Math.min((catSpent/budget)*100,100):0;
+    document.getElementById(`cat-disp-${cat}`).textContent=fmt(catSpent);
+    document.getElementById(`cat-bar-${cat}`).style.width=catPct+'%';
+  });
 
-  // Week cards
-  const container = document.getElementById('week-cards');
-  container.innerHTML = '';
-  s.weeks.forEach((week, i) => {
-    const { budget, spent, remaining } = budgets[i];
-    const pct = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0;
-    const over = remaining < 0;
-    const hasData = week.hasData;
-
-    const badge = hasData
-      ? (over ? `<span class="wk-badge over">-${fmt(Math.abs(remaining))}</span>`
-               : `<span class="wk-badge under">+${fmt(remaining)}</span>`)
-      : `<span class="wk-badge empty">Not logged</span>`;
-
-    const pickleTag = week.pickleball ? `<span class="pickle-tag">🏓 -R200</span>` : '';
-    const color = over ? '#f87171' : '#4ade80';
-
-    container.innerHTML += `
-      <div class="week-card" onclick="openWeek(${week.id})">
-        <div class="wk-top">
-          <div class="wk-name">Week ${week.id} ${pickleTag}</div>
-          ${badge}
+  // Week strip
+  const strip=document.getElementById('week-strip');
+  strip.innerHTML='';
+  budgets.forEach(({budget:b,spent:sp,remaining:rem},i)=>{
+    const wid=i+1;
+    const p=b>0?Math.min((sp/b)*100,100):0;
+    const ov=rem<0;
+    strip.innerHTML+=`
+      <div class="week-pip ${wid===currentWeekId?'current':''}" onclick="switchWeek(${wid})">
+        <div class="pip-label">Wk ${wid}</div>
+        <div class="pip-bar">
+          <div class="pip-fill" style="height:${p}%;background:${ov?'var(--red)':p>75?'var(--yellow)':'var(--green)'}"></div>
         </div>
-        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>
-        <div class="wk-amts">
-          <div>Budget <span>${fmt(budget)}</span></div>
-          <div>Spent <span>${fmt(spent)}</span></div>
-          <div>Left <span style="color:${over?'var(--red)':'var(--green)'}">${over?'-':''}${fmt(Math.abs(remaining))}</span></div>
-        </div>
+        <div class="pip-amt ${ov?'over':'under'}">${ov?'-':''}${fmt(Math.abs(rem))}</div>
       </div>`;
   });
-}
 
-function openWeek(id) {
-  currentWeekId = id;
-  const s = getState();
-  const week = s.weeks[id-1];
-  const budgets = calcWeekBudgets(s.weeks);
-  const { budget, spent, remaining } = budgets[id-1];
-  const over = remaining < 0;
-
-  // Header
-  document.getElementById('week-header-card').innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:flex-start">
-      <div>
-        <div style="font-size:13px;color:#a5b4fc;margin-bottom:4px">Week ${id}</div>
-        <div class="big">${fmt(budget)}</div>
-        <div class="detail">Budget this week${week.pickleball ? ' (incl. pickleball)' : ''}</div>
-      </div>
-      <div style="text-align:right">
-        <div style="font-size:13px;color:${over?'var(--red)':'var(--green)'};">${over ? 'Overspent' : 'Remaining'}</div>
-        <div style="font-size:22px;font-weight:800;color:${over?'var(--red)':'var(--green)'}">${over?'-':''}${fmt(Math.abs(remaining))}</div>
-        <div style="font-size:12px;color:#a5b4fc">Spent: ${fmt(spent)}</div>
-      </div>
-    </div>`;
-
-  // Pickleball toggle
-  document.getElementById('pickleball-toggle').checked = week.pickleball;
-
-  // Category inputs
-  ['personalCare','snacks','onlineShopping','other'].forEach(cat => {
-    const el = document.getElementById(`cat-${cat}`);
-    if (el) el.value = week.categorySpend[cat] || '';
-  });
-  updateCatTotal();
-
-  // Balance input
-  document.getElementById('bal-current').value = week.balanceEntry || '';
-  updateBalDisplay();
-
-  // Tab
-  switchTab(week.inputMode || 'cat');
-  showView('week');
-}
-
-function switchTab(tab) {
-  currentTab = tab;
-  document.getElementById('tab-cat').classList.toggle('active', tab==='cat');
-  document.getElementById('tab-bal').classList.toggle('active', tab==='bal');
-  document.getElementById('tab-content-cat').style.display = tab==='cat' ? 'block' : 'none';
-  document.getElementById('tab-content-bal').style.display = tab==='bal' ? 'block' : 'none';
-}
-
-function updateCatTotal() {
-  const cats = ['personalCare','snacks','onlineShopping','other'];
-  const total = cats.reduce((a,c) => a + (parseFloat(document.getElementById(`cat-${c}`)?.value)||0), 0);
-  document.getElementById('cat-total-display').textContent = fmt(total);
-}
-
-function updateBalDisplay() {
-  const s = getState();
-  const budgets = calcWeekBudgets(s.weeks);
-  const bal = parseFloat(document.getElementById('bal-current').value);
-  if (isNaN(bal)) { document.getElementById('bal-spend-display').textContent = '—'; return; }
-
-  // Expected balance = starting balance minus all previous weeks' spend and this week's fixed
-  // Simpler: show calculated spend based on previous week's ending balance
-  // We track a "reference balance" set at month start or from previous week
-  const prevSpent = s.weeks.slice(0, currentWeekId-1).reduce((a,w) => a + (w.totalSpend||0), 0);
-  const expectedStart = s.startingBalance !== null ? s.startingBalance - prevSpent : null;
-
-  if (expectedStart === null) {
-    // No starting balance set — just show raw spend from difference if we have prev week balance
-    document.getElementById('bal-spend-display').textContent = 'Set starting balance in settings first';
-    return;
+  // Log list
+  const log=document.getElementById('log-list');
+  if(!week.entries.length){
+    log.innerHTML=`<div class="empty-state"><div class="emoji">🏖️</div>Nothing logged yet. Tap a category above to add spend.</div>`;
+  }else{
+    const sorted=[...week.entries].reverse();
+    log.innerHTML=sorted.map((e,ri)=>{
+      const origIdx=week.entries.length-1-ri;
+      return`<div class="log-item">
+        <div class="log-dot ${CAT_DOTS[e.cat]}"></div>
+        <div style="flex:1"><div class="log-name">${CAT_NAMES[e.cat]}</div><div class="log-time">${e.time}</div></div>
+        <div class="log-amt">-${fmt(e.amount)}</div>
+        <div class="log-delete" onclick="deleteEntry(${origIdx})">×</div>
+      </div>`;
+    }).join('');
   }
-  const spent = expectedStart - bal;
-  document.getElementById('bal-spend-display').textContent = spent >= 0 ? fmt(spent) : 'Check balance entry';
 }
 
-function onPickleballChange() {
-  const s = getState();
-  s.weeks[currentWeekId-1].pickleball = document.getElementById('pickleball-toggle').checked;
+// ── Interactions ──────────────────────────────────────────────────────────
+function switchWeek(id){
+  currentWeekId=id;
+  render();
+}
+
+function togglePickleball(){
+  const s=getState();
+  s.weeks[currentWeekId-1].pickleball=!s.weeks[currentWeekId-1].pickleball;
   setState(s);
-  openWeek(currentWeekId); // re-render header
+  render();
 }
 
-function onCategoryInput() { updateCatTotal(); }
-function onBalanceInput() { updateBalDisplay(); }
+function deleteEntry(idx){
+  if(!confirm('Remove this entry?'))return;
+  const s=getState();
+  s.weeks[currentWeekId-1].entries.splice(idx,1);
+  setState(s);
+  render();
+}
 
-function saveWeek() {
-  const s = getState();
-  const week = s.weeks[currentWeekId-1];
+// ── Sheet ─────────────────────────────────────────────────────────────────
+const SHEET_TITLES={personalCare:'💆 Personal Care',snacks:'🍫 Snacks',onlineShopping:'🛒 Online / Shopping',other:'✨ Other'};
 
-  if (currentTab === 'cat') {
-    const cats = ['personalCare','snacks','onlineShopping','other'];
-    cats.forEach(c => {
-      week.categorySpend[c] = parseFloat(document.getElementById(`cat-${c}`)?.value)||0;
-    });
-    week.totalSpend = cats.reduce((a,c) => a + week.categorySpend[c], 0);
-    week.inputMode = 'cat';
+function openSheet(cat){
+  sheetCat=cat;
+  numStr='';
+  updateAmountDisplay();
+  document.getElementById('sheet-title').textContent=SHEET_TITLES[cat];
+  document.getElementById('sheet-sub').textContent='How much did you spend?';
+  const overlay=document.getElementById('overlay');
+  const sheet=document.getElementById('sheet');
+  overlay.classList.add('active');
+  requestAnimationFrame(()=>sheet.classList.add('open'));
+}
+
+function closeSheet(){
+  const sheet=document.getElementById('sheet');
+  const overlay=document.getElementById('overlay');
+  sheet.classList.remove('open');
+  setTimeout(()=>overlay.classList.remove('active'),300);
+}
+
+function numPress(key){
+  if(key==='back'){
+    numStr=numStr.slice(0,-1);
+  } else if(key==='.'){
+    if(!numStr.includes('.')) numStr+='.';
   } else {
-    const bal = parseFloat(document.getElementById('bal-current').value);
-    if (isNaN(bal)) { alert('Enter a valid balance.'); return; }
-    week.balanceEntry = bal;
-    week.inputMode = 'bal';
-    // Calculate spend
-    if (s.startingBalance !== null) {
-      const prevSpent = s.weeks.slice(0, currentWeekId-1).reduce((a,w) => a + (w.totalSpend||0), 0);
-      const expectedStart = s.startingBalance - prevSpent;
-      week.totalSpend = Math.max(0, expectedStart - bal);
-    }
+    if(numStr==='0') numStr=key;
+    else if(numStr.includes('.')&&numStr.split('.')[1].length>=2) return;
+    else numStr+=key;
   }
+  updateAmountDisplay();
+}
 
-  week.hasData = true;
+function updateAmountDisplay(){
+  const val=parseFloat(numStr)||0;
+  const el=document.getElementById('amount-display');
+  el.textContent=numStr?`R${numStr}`:'R0';
+  el.className='amount-display'+(numStr&&val>0?' has-value':'');
+  document.getElementById('sheet-save').disabled=!numStr||val<=0;
+}
+
+function saveEntry(){
+  const val=parseFloat(numStr);
+  if(!val||val<=0)return;
+  const s=getState();
+  const now=new Date();
+  const time=now.toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'})+' · '+now.toLocaleDateString('en-ZA',{day:'numeric',month:'short'});
+  s.weeks[currentWeekId-1].entries.push({cat:sheetCat,amount:val,time});
   setState(s);
-  showView('dashboard');
-  renderDashboard();
-}
-
-function clearWeek() {
-  if (!confirm('Clear all data for this week?')) return;
-  const s = getState();
-  const w = s.weeks[currentWeekId-1];
-  w.pickleball = false;
-  w.categorySpend = {personalCare:0,snacks:0,onlineShopping:0,other:0};
-  w.balanceEntry = null;
-  w.totalSpend = 0;
-  w.hasData = false;
-  setState(s);
-  showView('dashboard');
-  renderDashboard();
-}
-
-function startNewMonth() {
-  setState(defaultState());
-  showView('dashboard');
-  renderDashboard();
-}
-
-function exportData() {
-  const s = getState();
-  const text = JSON.stringify(s, null, 2);
-  const blob = new Blob([text], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `budget-${s.monthYear}.json`;
-  a.click();
+  closeSheet();
+  render();
 }
 
 // ── Navigation ────────────────────────────────────────────────────────────
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(`page-${name}`).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(`nav-${name}`).classList.add('active');
+}
 
-function showView(name) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById(`view-${name}`).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const navEl = document.getElementById(`nav-${name}`);
-  if (navEl) navEl.classList.add('active');
-  if (name === 'dashboard') renderDashboard();
+function startNewMonth(){setState(defaultState());currentWeekId=1;render();}
+function exportData(){
+  const s=getState();
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(s,null,2)],{type:'application/json'}));
+  a.download=`budget-${s.monthYear}.json`;a.click();
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────
-renderDashboard();
+render();
 </script>
 </body>
 </html>
