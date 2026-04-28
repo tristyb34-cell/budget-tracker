@@ -153,6 +153,8 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 .dot-other{background:linear-gradient(135deg,#a78bfa,#7c3aed)}
 .dot-betway{background:linear-gradient(135deg,#22d48a,#059669)}
 .cat-btn.betway::before{background:linear-gradient(135deg,#22d48a,#059669)}
+.dot-lifestyle{background:linear-gradient(135deg,#06b6d4,#0891b2)}
+.cat-btn.lifestyle::before{background:linear-gradient(135deg,#06b6d4,#0891b2)}
 
 /* Drag-to-add slider */
 .slider-section{margin-top:14px}
@@ -355,7 +357,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
       </div>
     </div>
 
-    <div class="cat-btn betway" onclick="openSheet('betway')" style="grid-column:span 2">
+    <div class="cat-btn betway" onclick="openSheet('betway')">
       <div style="display:flex;justify-content:space-between;align-items:flex-start">
         <span class="cat-icon">🎰</span>
         <span class="cat-reset" onclick="event.stopPropagation();resetCat('betway')" id="cat-reset-betway" style="display:none">↺</span>
@@ -368,6 +370,22 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
           style="background:linear-gradient(to right,#22d48a 0%,#ffffff10 0%)"
           oninput="onSlider('betway',this)">
         <button class="slider-add-btn" id="slab-betway" onclick="addFromSlider('betway')" disabled>Add</button>
+      </div>
+    </div>
+
+    <div class="cat-btn lifestyle" onclick="openSheet('lifestyle')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <span class="cat-icon">🧘</span>
+        <span class="cat-reset" onclick="event.stopPropagation();resetCat('lifestyle')" id="cat-reset-lifestyle" style="display:none">↺</span>
+      </div>
+      <span class="cat-name">Lifestyle</span>
+      <span class="cat-spent">Spent: <span id="cat-disp-lifestyle">R0</span></span>
+      <div class="slider-section" onclick="event.stopPropagation()">
+        <div class="slider-live-val zero" id="sla-lifestyle">Drag to add</div>
+        <input type="range" class="cat-slider" id="sli-lifestyle" min="0" max="850" step="5" value="0"
+          style="background:linear-gradient(to right,#06b6d4 0%,#ffffff10 0%)"
+          oninput="onSlider('lifestyle',this)">
+        <button class="slider-add-btn" id="slab-lifestyle" onclick="addFromSlider('lifestyle')" disabled>Add</button>
       </div>
     </div>
   </div>
@@ -449,7 +467,11 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
     <div class="setting-action" onclick="exportData()">
       <span class="sa-label">Export Data</span><span class="sa-chevron">›</span>
     </div>
+    <div class="setting-action" onclick="document.getElementById('import-input').click()">
+      <span class="sa-label">Import Data</span><span class="sa-chevron">›</span>
+    </div>
   </div>
+  <input type="file" id="import-input" accept=".json" style="display:none" onchange="importData(this)">
   <div class="sp"></div>
 </div>
 
@@ -507,8 +529,8 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 <script>
 const CONFIG={monthlyDiscretionary:3400,weeklyBase:850,pickleballCost:200,payDay:25};
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-const CAT_NAMES={personalCare:'Personal Care',snacks:'Snacks',onlineShopping:'Online / Shopping',other:'Other',betway:'Betway'};
-const CAT_DOTS={personalCare:'dot-personal',snacks:'dot-snacks',onlineShopping:'dot-shopping',other:'dot-other',betway:'dot-betway'};
+const CAT_NAMES={personalCare:'Personal Care',snacks:'Snacks',onlineShopping:'Online / Shopping',other:'Other',betway:'Betway',lifestyle:'Lifestyle'};
+const CAT_DOTS={personalCare:'dot-personal',snacks:'dot-snacks',onlineShopping:'dot-shopping',other:'dot-other',betway:'dot-betway',lifestyle:'dot-lifestyle'};
 const WEEK_RANGES=[
   {label:'Wk 1',days:'25th – 31st'},
   {label:'Wk 2',days:'1st – 7th'},
@@ -659,7 +681,7 @@ function render(){
   document.getElementById('pickle-sub').textContent=week.pickleball?'Playing this week (-R200 deducted)':'Tap to mark as played (-R200)';
 
   // Category cards
-  const cats=['personalCare','snacks','onlineShopping','other','betway'];
+  const cats=['personalCare','snacks','onlineShopping','other','betway','lifestyle'];
   cats.forEach(cat=>{
     const catSpent=week.entries.filter(e=>e.cat===cat).reduce((a,e)=>a+e.amount,0);
     document.getElementById(`cat-disp-${cat}`).textContent=fmt(catSpent);
@@ -760,7 +782,7 @@ function resetCat(cat){
   render();
 }
 
-const CAT_COLORS_HEX={personalCare:'#f472b6',snacks:'#f5c842',onlineShopping:'#60a5fa',other:'#a78bfa',betway:'#22d48a'};
+const CAT_COLORS_HEX={personalCare:'#f472b6',snacks:'#f5c842',onlineShopping:'#60a5fa',other:'#a78bfa',betway:'#22d48a',lifestyle:'#06b6d4'};
 
 function onSlider(cat,input){
   const val=parseInt(input.value);
@@ -815,7 +837,7 @@ function quickAdd(cat,amount){
 }
 
 // ── Sheet ─────────────────────────────────────────────────────────────────
-const SHEET_TITLES={personalCare:'💆 Personal Care',snacks:'🍫 Snacks',onlineShopping:'🛒 Online / Shopping',other:'✨ Other',betway:'🎰 Betway'};
+const SHEET_TITLES={personalCare:'💆 Personal Care',snacks:'🍫 Snacks',onlineShopping:'🛒 Online / Shopping',other:'✨ Other',betway:'🎰 Betway',lifestyle:'🧘 Lifestyle'};
 
 function openSheet(cat){
   sheetCat=cat;
@@ -883,7 +905,7 @@ function renderAudit(){
 
   const allEntries=s.weeks.flatMap((w,i)=>w.entries.map(e=>({...e,week:i+1})));
   const totalSpent=allEntries.reduce((a,e)=>a+e.amount,0);
-  const cats=['personalCare','snacks','onlineShopping','other','betway'];
+  const cats=['personalCare','snacks','onlineShopping','other','betway','lifestyle'];
 
   let html=`<div class="audit-summary">
     <h3>📅 ${MONTHS[parseInt(month)-1]} ${year}</h3>
@@ -923,7 +945,7 @@ function copyForClaude(){
   const [year,month]=s.monthYear.split('-');
   const allEntries=s.weeks.flatMap((w,i)=>w.entries.map(e=>({...e,week:i+1})));
   const totalSpent=allEntries.reduce((a,e)=>a+e.amount,0);
-  const cats=['personalCare','snacks','onlineShopping','other','betway'];
+  const cats=['personalCare','snacks','onlineShopping','other','betway','lifestyle'];
 
   let text=`BUDGET AUDIT — ${MONTHS[parseInt(month)-1]} ${year}\n`;
   text+=`Monthly income: R14,500\n`;
@@ -966,7 +988,7 @@ function renderHistory(){
     el.innerHTML=`<div class="hist-empty"><div class="emoji">📭</div><div>No history yet.</div><div style="font-size:12px;margin-top:6px">Complete a month and hit "Start New Month" to archive it here.</div></div>`;
     return;
   }
-  const cats=['personalCare','snacks','onlineShopping','other','betway'];
+  const cats=['personalCare','snacks','onlineShopping','other','betway','lifestyle'];
   el.innerHTML=h.map((m,mi)=>{
     const [year,month]=m.monthYear.split('-');
     const catRows=cats.map(c=>`
@@ -1013,7 +1035,7 @@ function getHistory(){try{return JSON.parse(localStorage.getItem('budg_history')
 function setHistory(h){localStorage.setItem('budg_history',JSON.stringify(h));}
 
 function _archiveState(s){
-  const cats=['personalCare','snacks','onlineShopping','other','betway'];
+  const cats=['personalCare','snacks','onlineShopping','other','betway','lifestyle'];
   const allEntries=s.weeks.flatMap((w,i)=>w.entries.map(e=>({...e,week:i+1})));
   const totalSpent=allEntries.reduce((a,e)=>a+e.amount,0);
   const catBreakdown={};
@@ -1040,6 +1062,28 @@ function exportData(){
   a.download=`budget-${s.monthYear}.json`;a.click();
 }
 
+function importData(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.monthYear||!data.weeks) throw new Error('Invalid');
+      if(!confirm(`Import data from ${data.monthYear}? This will replace your current data.`))return;
+      setState(data);
+      currentWeekId=getCurrentWeekId();
+      render();
+      const toast=document.getElementById('toast');
+      toast.textContent='Data imported ✓';
+      toast.classList.add('show');
+      setTimeout(()=>{toast.classList.remove('show');toast.textContent='Copied to clipboard ✓';},2000);
+    }catch{alert('Invalid file. Make sure you\'re using an exported budget JSON.');}
+  };
+  reader.readAsText(file);
+  input.value='';
+}
+
 // ── Service Worker ────────────────────────────────────────────────────────
 if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
 
@@ -1048,7 +1092,7 @@ currentWeekId=getCurrentWeekId();
 getState(); // triggers auto-archive check on load
 
 // Attach slider listeners via JS (belt-and-suspenders for mobile)
-['personalCare','snacks','onlineShopping','other','betway'].forEach(cat=>{
+['personalCare','snacks','onlineShopping','other','betway','lifestyle'].forEach(cat=>{
   const el=document.getElementById(`sli-${cat}`);
   if(el) el.addEventListener('input',()=>onSlider(cat,el));
 });
